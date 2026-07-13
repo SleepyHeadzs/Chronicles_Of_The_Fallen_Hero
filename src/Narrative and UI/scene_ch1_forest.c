@@ -1,5 +1,9 @@
 #include "raylib.h"
 #include "dialogue.h"
+#include "player.h"
+#include "tilemap.h"
+#include "camera.h"
+#include "scene_ch1_forest.h"
 #include <string.h>
 
 typedef struct{
@@ -28,9 +32,9 @@ static DiaolgueLine lines[]={
     {"CHAPTER I — The King's Call", "Sakib", "[Looks at the footprints]", "foot.png"},
     {"CHAPTER I — The King's Call", "Sakib", "You can tell all that?", "foot.png"},
     {"CHAPTER I — The King's Call", "Tonoy", "I've spent fifteen years looking for something that didn't want to be found. You learn to read what the ground remembers.", "talk.png"},
-    {"CHAPTER I — The King's Call", "Narrator", "The burned hut sits in the middle of the forest like an apology. On the charred door: a mark. A sword, and above it, a broken shield.", "door"},
+    {"CHAPTER I — The King's Call", "Narrator", "The burned hut sits in the middle of the forest like an apology. On the charred door: a mark. A sword, and above it, a broken shield.", "door.png"},
     {"CHAPTER I — The King's Call", "Narrator", "Tonoy goes completely still.", "door.png"},
-    {"CHAPTER I — The King's Call", "Narrator", "He's seen this mark exactly once before — carved into the hilt of a sword that a man named Sabin once put in his hand before the march to Ashfeld.", "door"},
+    {"CHAPTER I — The King's Call", "Narrator", "He's seen this mark exactly once before — carved into the hilt of a sword that a man named Sabin once put in his hand before the march to Ashfeld.", "door.png"},
     {"CHAPTER I — The King's Call", "Sabin", "If we're ever separated, look for this mark. It means I'm near.", "sabin.png"},
     {"CHAPTER I — The King's Call", "Narrator", "They were separated. Tonoy never found the mark. He searched for three years.", "door.png"},
     {"CHAPTER I — The King's Call", "Narrator", "He turns to Sakib. Sakib's face has that particular emptiness that only happens when something is being carefully held back.", "conv.png"},
@@ -42,7 +46,7 @@ static DiaolgueLine lines[]={
     {"CHAPTER I — The King's Call", "Sakib", "Let's keep moving.", "conv.png"},
     {"CHAPTER I — The King's Call", "Narrator", "Tonoy looks at him for a full three seconds. Then turns and walks into the hut.", "conv.png"},
     {"CHAPTER I — The King's Call", "[Observer — what Tonoy doesn't say]", "He isn't angry. Anger is for people who are surprised.", "observer.png"},
-    {"CHAPTER I — The King's Call", "[Observer — what Tonoy doesn't say]", "Tonoy has known for years that Sakib is carrying something he hasn'tbeen told to put down yet.", "observer.png"},
+    {"CHAPTER I — The King's Call", "[Observer — what Tonoy doesn't say]", "Tonoy has known for years that Sakib is carrying something he hasn't been told to put down yet.", "observer.png"},
     {"CHAPTER I — The King's Call", "[Observer — what Tonoy doesn't say]", "He was waiting. He can wait a little longer. But not much longer.", "observer.png"},
     {"CHAPTER I — The King's Call", "", "Now Choose Your Decision Wisely", "chapter1.png"},
 };
@@ -56,6 +60,14 @@ static Texture2D textureCache[MAX_TEXTURES];
 static const char *textureNames[MAX_TEXTURES];
 static int textureCount = 0;
 static Texture2D currentBg;
+
+typedef enum{
+    CH1_DIALOGUE,
+    CH1_FOREST
+}Ch1State;
+
+static Ch1State ch1State;
+static Player player;
 
 static Texture2D GetTexture(const char *name){
     for(int i=0; i<textureCount; i++){
@@ -99,38 +111,63 @@ void InitDialogueCh1(void){
     current = 0;
     currentTitle = lines[0].title;
     currentBg = GetTexture(lines[0].image);
+    ch1State = CH1_DIALOGUE;
 }
-
+static Camera2D cam;
 void UpdateDialogueCh1(void){
-    if(IsKeyPressed(KEY_SPACE)){
-        if(current<total-1){
-            current++;
-            if(lines[current].title[0] != '\0') currentTitle = lines[current].title;
-            currentBg = GetTexture(lines[current].image);
+    if(ch1State == CH1_DIALOGUE){
+        if(IsKeyPressed(KEY_SPACE)){
+            if(current < total-1){
+                current++;
+                if(lines[current].title[0] != '\0') currentTitle = lines[current].title;
+                currentBg = GetTexture(lines[current].image);
+            } else {
+                InitTilemap();
+                InitPlayer(&player);
+                InitGameCamera(&cam); 
+                ch1State = CH1_FOREST;
+            }
         }
+    } 
+    else{
+        UpdatePlayer(&player);
+        UpdateGameCamera(&cam, player.position);
     }
 }
 
- void DrawDialogueBoxCh1(void){
-    DrawTexture(currentBg, 0, 0, WHITE);
+void DrawDialogueBoxCh1(void){
+    if(ch1State == CH1_DIALOGUE){
+        DrawTexture(currentBg, 0, 0, WHITE);
 
-    DrawRectangle(40, 20, 1200, 50, BLACK);
-    DrawRectangleLines(40, 20, 1200, 50, MAGENTA);
-    DrawText(currentTitle, 70, 35, 24, YELLOW);
+        DrawRectangle(40, 20, 1200, 50, BLACK);
+        DrawRectangleLines(40, 20, 1200, 50, MAGENTA);
+        DrawText(currentTitle, 70, 35, 24, YELLOW);
 
-    DrawRectangle(40, 500, 1200, 180, BLACK);
-    DrawRectangleLines(40, 500, 1200, 180, MAGENTA);
+        DrawRectangle(40, 500, 1200, 180, BLACK);
+        DrawRectangleLines(40, 500, 1200, 180, MAGENTA);
 
-    DrawText(lines[current].speaker, 70, 515, 26, RED);
-    DrawWrapped(lines[current].text, 70, 550, 1140, 22, WHITE);
+        DrawText(lines[current].speaker, 70, 515, 26, RED);
+        DrawWrapped(lines[current].text, 70, 550, 1140, 22, WHITE);
 
-    DrawText("[Press SPACE]", 1080, 655, 18, PURPLE);
+        DrawText("[Press SPACE]", 1080, 655, 18, PURPLE);
+    } 
+    else{ 
+        BeginMode2D(cam);
+        DrawTilemap();
+        DrawPlayer(&player);
+        EndMode2D();
+        DrawMinimap(player.position);
+    }
 }
 
 int IsDialogueFinishedCh1(void){
-    return(current == total - 1);
+    return 0;
 }
 
 void CloseDialogueCh1(void){
     for(int i=0; i<textureCount; i++) UnloadTexture(textureCache[i]);
+    if(ch1State == CH1_FOREST){
+        ClosePlayer(&player);
+        CloseTilemap();
+    }
 }
