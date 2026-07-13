@@ -45,5 +45,5 @@ void DrawGame(void){
 
 void CloseGame(void){
     if(state == STATE_PROLOGUE) CloseDialogue();
-    else if(state == STATE_CHAPTER1_FOREST)CloseDialogueCh1();
+    else if(state == STATE_CHAPTER1_FOREST) CloseDialogueCh1();
 }
