@@ -11,7 +11,7 @@ static GameState state;
 
 void InitGame(void){
     state = STATE_PROLOGUE;
-    InitDialogue();              // prologue shuru
+    InitDialogue();
 }
 
 void UpdateGame(void){
@@ -20,13 +20,13 @@ void UpdateGame(void){
             UpdateDialogue();
             if(IsDialogueFinished()){
                 CloseDialogue();
-                InitDialogueCh1();        // <- Chapter 1 shuru, actual naam onujayi
+                InitDialogueCh1();
                 state = STATE_CHAPTER1_FOREST;
             }
             break;
 
         case STATE_CHAPTER1_FOREST:
-            UpdateDialogueCh1();          // <- actual naam
+            UpdateDialogueCh1();
             break;
     }
 }
@@ -38,12 +38,12 @@ void DrawGame(void){
             break;
 
         case STATE_CHAPTER1_FOREST:
-            DrawDialogueBoxCh1();         // <- actual naam
+            DrawDialogueBoxCh1();
             break;
     }
 }
 
 void CloseGame(void){
     if(state == STATE_PROLOGUE) CloseDialogue();
-    else CloseDialogueCh1();              // <- actual naam
+    else if(state == STATE_CHAPTER1_FOREST)CloseDialogueCh1();
 }
