@@ -21,6 +21,7 @@ void UpdateGame(void){
             if(IsDialogueFinished()){
                 CloseDialogue();
                 InitDialogueCh1();
+                state = STATE_CHAPTER1_FOREST;
             }
             break;
 
