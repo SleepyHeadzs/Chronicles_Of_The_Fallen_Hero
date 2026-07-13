@@ -13,6 +13,7 @@ int main(void)
         UpdateGame();
 
         BeginDrawing();
+        ClearBackground(BLACK);
         DrawGame();
         EndDrawing();
     }
