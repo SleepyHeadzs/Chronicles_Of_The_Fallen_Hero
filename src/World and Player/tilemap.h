@@ -4,7 +4,6 @@
 
 void InitTilemap(void);
 void DrawTilemap(void);
-void DrawMinimap(Vector2 playerPos);
 int GetMapWidth(void);
 int GetMapHeight(void);
 void CloseTilemap(void);
