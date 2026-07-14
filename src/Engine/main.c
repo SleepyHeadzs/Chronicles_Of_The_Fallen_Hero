@@ -1,24 +1,24 @@
 #include "raylib.h"
 #include "game.h"
 
-int main(void)
-{
-    InitWindow(1280, 720, "Chronicles of the Fallen Hero");
+int main() {
+    const int screenW = 1280, screenH = 720;
+    InitWindow(screenW, screenH, "Chronicles_Of_The_Fallen_Hero");
     SetTargetFPS(60);
 
-    InitGame();
+    GameContext ctx = {0};
+    Game_Init(&ctx);
 
-    while (!WindowShouldClose())
-    {
-        UpdateGame();
+    while (WindowShouldClose()==0) {
+        float dt = GetFrameTime();
+        Game_Update(&ctx, dt);
 
         BeginDrawing();
-        ClearBackground(BLACK);
-        DrawGame();
+            ClearBackground(BLACK);
+            Game_Draw(&ctx);
         EndDrawing();
     }
 
-    CloseGame();
     CloseWindow();
     return 0;
 }
