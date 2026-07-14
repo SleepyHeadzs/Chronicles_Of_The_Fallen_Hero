@@ -156,7 +156,6 @@ void DrawDialogueBoxCh1(void){
         DrawTilemap();
         DrawPlayer(&player);
         EndMode2D();
-        DrawMinimap(player.position);
     }
 }
 
