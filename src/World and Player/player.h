@@ -8,7 +8,7 @@ typedef struct{
     Texture2D sprite;
     int frame;
     float frameTimer;
-    bool facingLeft;
+    bool islookingLeft;
 }Player;
 
 void InitPlayer(Player *p);
