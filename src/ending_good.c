@@ -11,9 +11,9 @@ typedef struct{
     const char *speaker;
     const char *text;
     const char *image;
-}DiaolgueLine;
+}DialogueLine;
 
-static DiaolgueLine lines[]={
+static DialogueLine lines[]={
     {"GOOD ENDING — Confession", "Narrator", "Tonoy speaks. Not loudly, not dramatically. He speaks the way he does everything — with precision, because the words matter and he has no wish to waste them.", ""},
     {"GOOD ENDING — Confession", "Tonoy", "Sakib didn't abandon you. He was given a choice with a gun to his head. He chose wrong and he's known it was wrong every day since. That's not betrayal. Betrayal is what the king did. Betrayal is calm and comfortable, and holds a parade afterward.", ""},
     {"GOOD ENDING — Confession", "Narrator", "Sabin listens. Sabin, who hasn't truly listened to anyone in fifteen years, listens.", ""},
@@ -46,6 +46,7 @@ static Ch_good_State ch_good_state;
 static Player player;
 
 static Texture2D GetTexture(const char *name){
+    if(name[0] == '\0') return (Texture2D){0};
     for(int i=0; i<textureCount; i++){
         if(strcmp(textureNames[i], name)==0) return textureCache[i];
     }
@@ -56,7 +57,7 @@ static Texture2D GetTexture(const char *name){
 }
 
 static void DrawWrapped(const char *text, int x, int y, int maxWidth, int fontSize, Color color){
-    char buffer[1024];
+    char buffer[4096];
     int lineY = y;
     int lineStart = 0;
     int lastSpace = -1;
@@ -137,7 +138,7 @@ void DrawDialogueBoxGood(void){
 }
 
 int IsDialogueFinishedGood(void){
-    return 0;
+    return(current == total - 1);
 }
 
 void CloseDialogueGood(void){
