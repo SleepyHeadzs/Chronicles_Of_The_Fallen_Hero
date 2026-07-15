@@ -11,9 +11,9 @@ typedef struct{
     const char *speaker;
     const char *text;
     const char *image;
-}DiaolgueLine;
+}DialogueLine;
 
-static DiaolgueLine lines[]={
+static DialogueLine lines[]={
     {"BAD ENDING — The Cycle Continues", "Narrator", "Sabin fights because he doesn't know how to do anything else anymore. Tonoy fights because someone has to.", ""},
     {"BAD ENDING — The Cycle Continues", "Narrator", "When it's over, Sabin lies on the ground, and what's in his eyes isn't defeat — it's the particular exhaustion of a man who spent fifteen years searching for something and finally stopped.", ""},
     {"BAD ENDING — The Cycle Continues", "Sabin", "I only wanted to know... why.", ""},
@@ -45,6 +45,7 @@ static Ch_bad_State ch_bad_state;
 static Player player;
 
 static Texture2D GetTexture(const char *name){
+    if(name[0] == '\0') return (Texture2D){0};
     for(int i=0; i<textureCount; i++){
         if(strcmp(textureNames[i], name)==0) return textureCache[i];
     }
@@ -55,7 +56,7 @@ static Texture2D GetTexture(const char *name){
 }
 
 static void DrawWrapped(const char *text, int x, int y, int maxWidth, int fontSize, Color color){
-    char buffer[1024];
+    char buffer[4096];
     int lineY = y;
     int lineStart = 0;
     int lastSpace = -1;
@@ -136,7 +137,7 @@ void DrawDialogueBoxBad(void){
 }
 
 int IsDialogueFinishedBad(void){
-    return 0;
+    return(current == total - 1);
 }
 
 void CloseDialogueBad(void){
