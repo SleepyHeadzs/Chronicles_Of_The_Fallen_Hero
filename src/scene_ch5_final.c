@@ -11,9 +11,9 @@ typedef struct{
     const char *speaker;
     const char *text;
     const char *image;
-}DiaolgueLine;
+}DialogueLine;
 
-static DiaolgueLine lines[]={
+static DialogueLine lines[]={
     {"CHAPTER V — The Forgotten Oath (Finale)", "Location", "Location: The Shattered Throne — Ashfeld", ""},
     {"CHAPTER V — The Forgotten Oath (Finale)", "Narrator", "The road to Ashfeld is the same road it's always been. The stones are the same stones. The way the valley opens up past the last hill — Tonoy remembers it the way you remember the moment right before your life changed.", ""},
     {"CHAPTER V — The Forgotten Oath (Finale)", "Narrator", "He's walked this in his mind so many times that the real place feels like a memory of a memory. Smaller than it should be. Quieter.", ""},
@@ -64,6 +64,7 @@ static Ch5State ch5State;
 static Player player;
 
 static Texture2D GetTexture(const char *name){
+    if(name[0] == '\0') return (Texture2D){0};
     for(int i=0; i<textureCount; i++){
         if(strcmp(textureNames[i], name)==0) return textureCache[i];
     }
@@ -74,7 +75,7 @@ static Texture2D GetTexture(const char *name){
 }
 
 static void DrawWrapped(const char *text, int x, int y, int maxWidth, int fontSize, Color color){
-    char buffer[1024];
+    char buffer[4096];
     int lineY = y;
     int lineStart = 0;
     int lastSpace = -1;
@@ -155,7 +156,7 @@ void DrawDialogueBoxCh5(void){
 }
 
 int IsDialogueFinishedCh5(void){
-    return 0;
+    return(current == total - 1);
 }
 
 void CloseDialogueCh5(void){
