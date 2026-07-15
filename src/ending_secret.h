@@ -1,5 +1,5 @@
-#ifndef DIALOGUE_SECRET_H
-#define DIALOGUE_SECRET_H
+#ifndef ENDING_SECRET_H
+#define ENDING_SECRET_H
 
 void InitDialogueSecret(void);
 void UpdateDialogueSecret(void);
