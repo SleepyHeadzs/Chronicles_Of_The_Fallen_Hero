@@ -11,9 +11,9 @@ typedef struct{
     const char *speaker;
     const char *text;
     const char *image;
-}DiaolgueLine;
+}DialogueLine;
 
-static DiaolgueLine lines[]={
+static DialogueLine lines[]={
     {"CHAPTER IV — Truth Burns", "Location", "Location: The Volcano Pass of Igrath", ""},
     {"CHAPTER IV — Truth Burns", "Narrator", "They don't speak on the climb through Igrath. The silence between them isn't hostile — it's the silence of two people who have spoken a true thing and are giving it room to settle.", ""},
     {"CHAPTER IV — Truth Burns", "Narrator", "Tonoy sets the pace. He always does. Sakib follows, and that too is an old habit, and they haven't decided yet whether old habits are comfort or a problem.", ""},
@@ -66,6 +66,7 @@ static Ch4State ch4State;
 static Player player;
 
 static Texture2D GetTexture(const char *name){
+    if(name[0] == '\0') return (Texture2D){0};
     for(int i=0; i<textureCount; i++){
         if(strcmp(textureNames[i], name)==0) return textureCache[i];
     }
@@ -76,7 +77,7 @@ static Texture2D GetTexture(const char *name){
 }
 
 static void DrawWrapped(const char *text, int x, int y, int maxWidth, int fontSize, Color color){
-    char buffer[1024];
+    char buffer[4096];
     int lineY = y;
     int lineStart = 0;
     int lastSpace = -1;
@@ -157,7 +158,7 @@ void DrawDialogueBoxCh4(void){
 }
 
 int IsDialogueFinishedCh4(void){
-    return 0;
+    return(current == total - 1);
 }
 
 void CloseDialogueCh4(void){
