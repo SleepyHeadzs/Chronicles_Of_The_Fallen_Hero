@@ -12,9 +12,9 @@ typedef struct{
     const char *speaker;
     const char *text;
     const char *image;
-}DiaolgueLine;
+}DialogueLine;
 
-static DiaolgueLine lines[]={
+static DialogueLine lines[]={
     {"CHAPTER III — The Diary Pages", "Location", "Location: The Ancient Dungeon of Vel'Mora", ""},
     {"CHAPTER III — The Diary Pages", "Narrator", "Above the cave entrance, written in a tongue older than Valdris itself: he who comes seeking truth shall no longer be alone.", ""},
     {"CHAPTER III — The Diary Pages", "Narrator", "Tonoy reads it twice. Something about it aches.", ""},
@@ -75,6 +75,7 @@ static Ch3State ch3State;
 static Player player;
 
 static Texture2D GetTexture(const char *name){
+    if(name[0] == '\0') return (Texture2D){0};
     for(int i=0; i<textureCount; i++){
         if(strcmp(textureNames[i], name)==0) return textureCache[i];
     }
@@ -85,7 +86,7 @@ static Texture2D GetTexture(const char *name){
 }
 
 static void DrawWrapped(const char *text, int x, int y, int maxWidth, int fontSize, Color color){
-    char buffer[1024];
+    char buffer[4096];
     int lineY = y;
     int lineStart = 0;
     int lastSpace = -1;
@@ -166,7 +167,7 @@ void DrawDialogueBoxCh3(void){
 }
 
 int IsDialogueFinishedCh3(void){
-    return 0;
+    return(current == total - 1);
 }
 
 void CloseDialogueCh3(void){
