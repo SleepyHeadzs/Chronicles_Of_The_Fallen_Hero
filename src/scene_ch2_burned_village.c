@@ -11,9 +11,9 @@ typedef struct{
     const char *speaker;
     const char *text;
     const char *image;
-}DiaolgueLine;
+}DialogueLine;
 
-static DiaolgueLine lines[]={
+static DialogueLine lines[]={
     {"CHAPTER II — Ash Does Not Lie", "Location", "Location: The Burned Village of Corrath", ""},
     {"CHAPTER II — Ash Does Not Lie", "Narrator", "Corrath didn't burn. Burned implies evidence of fire — charred remains, wreckage, the chemical language of destruction. What happened to Corrath is different. It was erased. Fifty houses reduced to fine grey powder, as though someone translated the entire village into silence.", ""},
     {"CHAPTER II — Ash Does Not Lie", "Narrator", "Tonoy sheathes his sword and walks through it. Whatever did this is already gone. He can feel the absence — the way you feel a word deliberately left out of a sentence.", ""},
@@ -65,6 +65,7 @@ static Ch2State ch2State;
 static Player player;
 
 static Texture2D GetTexture(const char *name){
+    if(name[0] == '\0') return (Texture2D){0};
     for(int i=0; i<textureCount; i++){
         if(strcmp(textureNames[i], name)==0) return textureCache[i];
     }
@@ -75,7 +76,7 @@ static Texture2D GetTexture(const char *name){
 }
 
 static void DrawWrapped(const char *text, int x, int y, int maxWidth, int fontSize, Color color){
-    char buffer[1024];
+    char buffer[4096];
     int lineY = y;
     int lineStart = 0;
     int lastSpace = -1;
@@ -156,7 +157,7 @@ void DrawDialogueBoxCh2(void){
 }
 
 int IsDialogueFinishedCh2(void){
-    return 0;
+    return(current == total - 1);
 }
 
 void CloseDialogueCh2(void){
