@@ -1,5 +1,5 @@
-#ifndef DIALOGUE_BAD_H
-#define DIALOGUE_BAD_H
+#ifndef ENDING_BAD_H
+#define ENDING_BAD_H
 
 void InitDialogueBad(void);
 void UpdateDialogueBad(void);
