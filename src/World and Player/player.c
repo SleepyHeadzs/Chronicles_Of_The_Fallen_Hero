@@ -52,11 +52,11 @@ void UpdatePlayer(Player *p){
     if(p->position.x < 0) p->position.x = 0;
     if(p->position.y < 0) p->position.y = 0;
 
-    if(p->position.x > (GetMapWidth() - FRAME_SIZE)) 
-                p->position.x = GetMapWidth() - FRAME_SIZE;
+    if(p->position.x > (GetMapWidth() - 4*FRAME_SIZE)) 
+                p->position.x = GetMapWidth() - 4*FRAME_SIZE;
 
-    if(p->position.y > (GetMapHeight() - FRAME_SIZE)) 
-                p->position.y = GetMapHeight() - FRAME_SIZE;
+    if(p->position.y > (GetMapHeight() - 4*FRAME_SIZE)) 
+                p->position.y = GetMapHeight() - 4*FRAME_SIZE;
 
     if(isMoving){
         p->frameTimer += dt;
