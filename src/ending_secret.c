@@ -11,9 +11,9 @@ typedef struct{
     const char *speaker;
     const char *text;
     const char *image;
-}DiaolgueLine;
+}DialogueLine;
 
-static DiaolgueLine lines[]={
+static DialogueLine lines[]={
     {"SECRET ENDING — The Oath Kept", "Narrator", "This is what it looks like when Tonoy decides something: he doesn't announce it. He doesn't build up to it. He simply acts, and the world rearranges itself around the decision.", ""},
     {"SECRET ENDING — The Oath Kept", "Narrator", "He walks to the center of the dais. Kneels in front of Sabin — not pleading, but in a way that says: I'm meeting you at your level because I chose to, not because I was forced to.", ""},
     {"SECRET ENDING — The Oath Kept", "Tonoy", "You wrote my name on the door because you wanted to know if I'd come. I'm here. That's the answer. It always was. I just understand the question now.", ""},
@@ -55,6 +55,7 @@ static Ch_secret_State ch_secret_state;
 static Player player;
 
 static Texture2D GetTexture(const char *name){
+    if(name[0] == '\0') return (Texture2D){0};
     for(int i=0; i<textureCount; i++){
         if(strcmp(textureNames[i], name)==0) return textureCache[i];
     }
@@ -65,7 +66,7 @@ static Texture2D GetTexture(const char *name){
 }
 
 static void DrawWrapped(const char *text, int x, int y, int maxWidth, int fontSize, Color color){
-    char buffer[1024];
+    char buffer[4096];
     int lineY = y;
     int lineStart = 0;
     int lastSpace = -1;
@@ -146,7 +147,7 @@ void DrawDialogueBoxSecret(void){
 }
 
 int IsDialogueFinishedSecret(void){
-    return 0;
+    return(current == total - 1);
 }
 
 void CloseDialogueSecret(void){
