@@ -1,5 +1,5 @@
-#ifndef DIALOGUE_GOOD_H
-#define DIALOGUE_GOOD_H
+#ifndef ENDING_GOOD_H
+#define ENDING_GOOD_H
 
 void InitDialogueGood(void);
 void UpdateDialogueGood(void);
