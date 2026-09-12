@@ -450,4 +450,17 @@ void UpdatePuzzleSystem(void)
         return;
     }
 
+    if (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W))
+    {
+        selectedOption--;
+        if (selectedOption < 0)
+            selectedOption = 3;
+    }
+    if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S))
+    {
+        selectedOption++;
+        if (selectedOption > 3)
+            selectedOption = 0;
+    }
+
 }
