@@ -605,7 +605,7 @@ void InitPuzzleSystem(int ch){
     for (int i = currentSetSize - 1; i > 0; i--)
     {
         int j = GetRandomValue(0, i);
-        
+
         QuizQuestion temp = currentQuestions[i];
         currentQuestions[i] = currentQuestions[j];
         currentQuestions[j] = temp;
@@ -617,4 +617,14 @@ void InitPuzzleSystem(int ch){
     score = 0;
     timer = TIME_LIMIT;
     puzzleState = 0;
+}
+
+void UpdatePuzzleSystem(void){
+    if (puzzleState != 0)
+    {
+        if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)){
+            puzzleState = 1;
+        }
+        return;
+    }
 }
