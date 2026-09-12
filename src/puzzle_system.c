@@ -522,3 +522,18 @@ static QuizQuestion set5_maths[]={
         0
     }
 };
+
+static QuizQuestion *allSets[5] = {set1_tech, set2_riddles1, set3_riddles2, set4_general, set5_maths};
+static int setSizes[5] = {10, 10, 10, 10, 10};
+
+static QuizQuestion *currentQuestions;
+static int currentSetSize;
+static int currentQuestion;
+static int selectedOption;
+static int puzzleState;
+static int lives;
+static int score;
+static float timer;
+static const float TIME_LIMIT = 15.0f;
+static int chapter;
+static int questionsPerChapter;
