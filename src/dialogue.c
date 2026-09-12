@@ -1,5 +1,6 @@
 #include "raylib.h"
 #include "dialogue.h"
+#include "dialogue_style.h"
 #include <string.h>
 
 typedef struct{
@@ -31,6 +32,7 @@ static DialogueLine lines[]={
 
 static int total = 17;
 static int current = 0;
+static bool finished = false;
 static const char *currentTitle = "";
 
 #define MAX_TEXTURES 16
@@ -80,38 +82,40 @@ static void DrawWrapped(const char *text, int x, int y, int maxWidth, int fontSi
 
 void InitDialogue(void){
     current = 0;
+    finished = false;
     currentTitle = lines[0].title;
     currentBg = GetTexture(lines[0].image);
 }
 
 void UpdateDialogue(void){
+    if(DialogueSkipClicked()){
+        finished = true;
+        return;
+    }
     if(IsKeyPressed(KEY_SPACE)){
         if(current<total-1){
             current++;
             if(lines[current].title[0] != '\0') currentTitle = lines[current].title;
             currentBg = GetTexture(lines[current].image);
         }
+        else
+            finished = true;
     }
 }
 
 void DrawDialogueBox(void){
     DrawTexture(currentBg, 0, 0, WHITE);
 
-    DrawRectangle(40, 20, 1200, 50, BLACK);
-    DrawRectangleLines(40, 20, 1200, 50, MAGENTA);
-    DrawText(currentTitle, 70, 35, 24, YELLOW);
+    DrawText(currentTitle, 70, 35, 24, DIALOGUE_TITLE_COLOR);
 
-    DrawRectangle(40, 500, 1200, 180, BLACK);
-    DrawRectangleLines(40, 500, 1200, 180, MAGENTA);
+    DrawText(lines[current].speaker, 70, 515, 26, DIALOGUE_SPEAKER_COLOR);
+    DrawWrapped(lines[current].text, 70, 550, 1140, 22, DIALOGUE_TEXT_COLOR);
+    DrawDialogueSkipButton();
 
-    DrawText(lines[current].speaker, 70, 515, 26, RED);
-    DrawWrapped(lines[current].text, 70, 550, 1140, 22, WHITE);
-
-    DrawText("[Press SPACE]", 1080, 655, 18, PURPLE);
 }
 
 int IsDialogueFinished(void){
-    return(current == total - 1);
+    return finished;
 }
 
 void CloseDialogue(void){
