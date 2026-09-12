@@ -110,3 +110,106 @@ static QuizQuestion set1_tech[]={
         2
     }
 };
+
+static QuizQuestion set2_riddles1[] = {
+    {
+        "What has keys but can't open locks?",
+        {
+            "A map",
+            "A piano",
+            "A keyboard",
+            "A code"
+        },
+        1
+    },
+    {
+        "I am an odd number. Take away one letter and I become even. What number am I?",
+        {
+            "Seven",
+            "Five",
+            "Nine",
+            "Eleven"
+        },
+        0
+    },
+    {
+        "A man looks at a photo. Someone asks who it is. He says: 'Brothers and sisters I have none, but this man's father is my father's son.' Who is in the photo?",
+        {
+            "His brother",
+            "His father",
+            "His son",
+            "Himself"
+        },
+        2
+    },
+    {
+        "What comes once in a minute, twice in a moment, but never in a thousand years?",
+        {
+            "The letter 'M'",
+            "The letter 'O'",
+            "The number 1",
+            "Time"
+        },
+        0
+    },
+    {
+        "The more you take, the more you leave behind. What am I?",
+        {
+            "Memories",
+            "Footsteps",
+            "Breath",
+            "Time"
+        },
+        1
+    },
+    {
+        "Two fathers and two sons go fishing. They catch exactly 3 fish and each person gets one. How?",
+        {
+            "They shared one fish",
+            "It's a grandfather, father, and son",
+            "One son didn't eat",
+            "They found an extra fish"
+        },
+        1
+    },
+    {
+        "What can travel around the world while staying in a corner?",
+        {
+            "A bird",
+            "A plane",
+            "A stamp",
+            "The internet"
+        },
+        2
+    },
+    {
+        "If you have me, you want to share me. If you share me, you don't have me. What am I?",
+        {
+            "Money",
+            "A secret",
+            "Knowledge",
+            "Love"
+        },
+        1
+    },
+    {
+        "What building has the most stories?",
+        {
+            "A skyscraper",
+            "A castle",
+            "The library",
+            "A hotel"
+        },
+        2
+    },
+    {
+        "A farmer has 17 sheep, and all but 9 die. How many are left?",
+        {
+            "8",
+            "9",
+            "17",
+            "0"
+        },
+        1
+    }
+};
