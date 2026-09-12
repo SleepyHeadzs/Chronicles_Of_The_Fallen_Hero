@@ -434,5 +434,20 @@ void UpdatePuzzleSystem(void)
 
     QuizQuestion *q = &currentQuestions[currentQuestion];
     timer -= GetFrameTime();
-    
+
+    if (timer <= 0)
+    {
+        timer = 0;
+        lives--;
+        if (lives <= 0)
+        {
+            puzzleState = 2;
+            return;
+        }
+        currentQuestion++;
+        timer = TIME_LIMIT;
+        selectedOption = 0;
+        return;
+    }
+
 }
