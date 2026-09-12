@@ -463,4 +463,27 @@ void UpdatePuzzleSystem(void)
             selectedOption = 0;
     }
 
+    
+    if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE))
+    {
+        if (selectedOption == q->correctAnswer)
+        {
+            score++;
+            currentQuestion++;
+            timer = TIME_LIMIT;
+            selectedOption = 0;
+        }
+        else
+        {
+            lives--;
+            if (lives <= 0)
+            {
+                puzzleState = 2;
+                return;
+            }
+            currentQuestion++;
+            timer = TIME_LIMIT;
+            selectedOption = 0;
+        }
+    }
 }
