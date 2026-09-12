@@ -515,23 +515,41 @@ void DrawPuzzleSystem(void)
             TextFormat("QUESTION %d / %d",
                        currentQuestion + 1, questionsPerChapter),
             520, 90, 24, WHITE);
+
+        DrawRectangle(100, 140, 1080, 25, DARKGRAY);
+
+        float timerPct = timer / TIME_LIMIT;
+
+        Color timerColor = (timerPct > 0.5f)
+                               ? GREEN
+                           : (timerPct > 0.25f)
+                               ? YELLOW
+                               : RED;
+
+        DrawRectangle(100, 140, 1080 * timerPct, 25, timerColor);
+
+        DrawText(TextFormat("%.1fs", timer), 615, 143, 20, BLACK);
+
+        DrawRectangle(80, 190, 1120, 140, (Color){25, 25, 45, 255});
+        DrawRectangleLinesEx((Rectangle){80, 190, 1120, 140}, 3, GOLD);
+        DrawWrapped(q->question, 120, 220, 1040, 26, WHITE);
+
+        const char *labels[] = {"A", "B", "C", "D"};
+        for (int i = 0; i < 4; i++)
+        {
+            int y = 360 + (i * 85);
+            Color bgColor = (i == selectedOption) ? (Color){70, 70, 120, 255} : (Color){30, 30, 55, 255};
+            Color borderColor = (i == selectedOption) ? GOLD : DARKGRAY;
+
+            DrawRectangle(180, y, 920, 75, bgColor);
+            DrawRectangleLinesEx((Rectangle){180, y, 920, 75}, 3, borderColor);
+
+            DrawCircle(230, y + 37, 25, (i == selectedOption) ? GOLD : DARKGRAY);
+            DrawText(labels[i], 222, y + 28, 24, BLACK);
+
+            DrawText(q->options[i], 280, y + 22, 22, WHITE);
+        }
+
+        DrawText("[UP/DOWN] Navigate  [ENTER] Select", 430, 710, 20, GRAY);
     }
-
-    DrawRectangle(100, 140, 1080, 25, DARKGRAY);
-
-    float timerPct = timer / TIME_LIMIT;
-
-    Color timerColor = (timerPct > 0.5f)
-                           ? GREEN
-                       : (timerPct > 0.25f)
-                           ? YELLOW
-                           : RED;
-
-    DrawRectangle(100, 140, 1080 * timerPct, 25, timerColor);
-
-    DrawText(TextFormat("%.1fs", timer), 615, 143, 20, BLACK);
-
-    DrawRectangle(80, 190, 1120, 140, (Color){25, 25, 45, 255});
-    DrawRectangleLinesEx((Rectangle){80, 190, 1120, 140}, 3, GOLD);
-    DrawWrapped(q->question, 120, 220, 1040, 26, WHITE);
 }
