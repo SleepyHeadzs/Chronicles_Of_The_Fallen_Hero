@@ -1,8 +1,6 @@
 #include "raylib.h"
 #include "dialogue.h"
-#include "player.h"
-#include "tilemap.h"
-#include "camera.h"
+#include "dialogue_style.h"
 #include "ending_bad.h"
 #include <string.h>
 
@@ -14,16 +12,16 @@ typedef struct{
 }DialogueLine;
 
 static DialogueLine lines[]={
-    {"BAD ENDING — The Cycle Continues", "Narrator", "Sabin fights because he doesn't know how to do anything else anymore. Tonoy fights because someone has to.", ""},
-    {"BAD ENDING — The Cycle Continues", "Narrator", "When it's over, Sabin lies on the ground, and what's in his eyes isn't defeat — it's the particular exhaustion of a man who spent fifteen years searching for something and finally stopped.", ""},
-    {"BAD ENDING — The Cycle Continues", "Sabin", "I only wanted to know... why.", ""},
-    {"BAD ENDING — The Cycle Continues", "Tonoy", "I know. I'm sorry I couldn't get here sooner.", ""},
-    {"BAD ENDING — The Cycle Continues", "Narrator", "The curse breaks. Valdris is saved. The king holds a celebration.", ""},
-    {"BAD ENDING — The Cycle Continues", "Narrator", "Tonoy doesn't go. He returns to Maren. He doesn't tear down the hut. He takes a stone from Ashfeld's broken dais and keeps it by his window, and every morning he looks at it, and every morning he knows exactly what it cost.", ""},
-    {"BAD ENDING — The Cycle Continues", "Narrator", "Sakib visits once. They don't talk about what happened. They sit together in the dark for an hour, then Sakib leaves. They never speak again after that.", ""},
-    {"BAD ENDING — The Cycle Continues", "Narrator", "The king keeps his throne. The pact stays buried. The three hundred people who died in the surrendered villages get no justice.", ""},
-    {"BAD ENDING — The Cycle Continues", "Narrator", "And Tonoy spends the rest of his life knowing: he had exactly one chance to arrive in time, and he let a conversation come an hour too late.", ""},
-    {"BAD ENDING — The Cycle Continues", "Narrator", "Valdris was saved. The king celebrated. The truth was buried again. And Tonoy spent the rest of his life carrying the weight of an answer that came an hour too late.", ""},
+    {"BAD ENDING — The Cycle Continues", "Narrator", "Sabin fights because he doesn't know how to do anything else anymore. Tonoy fights because someone has to.", "bad (1).png"},
+    {"BAD ENDING — The Cycle Continues", "Narrator", "When it's over, Sabin lies on the ground, and what's in his eyes isn't defeat — it's the particular exhaustion of a man who spent fifteen years searching for something and finally stopped.", "bad (1).png"},
+    {"BAD ENDING — The Cycle Continues", "Sabin", "I only wanted to know... why.", "bad (5).png"},
+    {"BAD ENDING — The Cycle Continues", "Tonoy", "I know. I'm sorry I couldn't get here sooner.", "bad (5).png"},
+    {"BAD ENDING — The Cycle Continues", "Narrator", "The curse breaks. Valdris is saved. The king holds a celebration.", "bad (4).png"},
+    {"BAD ENDING — The Cycle Continues", "Narrator", "Tonoy doesn't go. He returns to Maren. He doesn't tear down the hut. He takes a stone from Ashfeld's broken dais and keeps it by his window, and every morning he looks at it, and every morning he knows exactly what it cost.", "bad (4).png"},
+    {"BAD ENDING — The Cycle Continues", "Narrator", "Sakib visits once. They don't talk about what happened. They sit together in the dark for an hour, then Sakib leaves. They never speak again after that.", "bad (3).png"},
+    {"BAD ENDING — The Cycle Continues", "Narrator", "The king keeps his throne. The pact stays buried. The three hundred people who died in the surrendered villages get no justice.", "bad (3).png"},
+    {"BAD ENDING — The Cycle Continues", "Narrator", "And Tonoy spends the rest of his life knowing: he had exactly one chance to arrive in time, and he let a conversation come an hour too late.", "bad (2).png"},
+    {"BAD ENDING — The Cycle Continues", "Narrator", "Valdris was saved. The king celebrated. The truth was buried again. And Tonoy spent the rest of his life carrying the weight of an answer that came an hour too late.", "bad (2).png"},
 };
 
 static int total = 10;
@@ -42,7 +40,6 @@ typedef enum{
 }Ch_bad_State;
 
 static Ch_bad_State ch_bad_state;
-static Player player;
 
 static Texture2D GetTexture(const char *name){
     if(name[0] == '\0') return (Texture2D){0};
@@ -89,7 +86,6 @@ void InitDialogueBad(void){
     currentBg = GetTexture(lines[0].image);
     ch_bad_state = CH_DIALOGUE_BAD;
 }
-static Camera2D cam;
 void UpdateDialogueBad(void){
     if(ch_bad_state == CH_DIALOGUE_BAD){
         if(IsKeyPressed(KEY_SPACE)){
@@ -99,51 +95,28 @@ void UpdateDialogueBad(void){
                 currentBg = GetTexture(lines[current].image);
             } 
             else{
-                InitTilemap();
-                InitPlayer(&player);
-                InitGameCamera(&cam); 
                 ch_bad_state = CH_BAD_ENDING;
             }
         }
     } 
-    else{
-        UpdatePlayer(&player);
-        UpdateGameCamera(&cam, player.position);
-    }
 }
 
 void DrawDialogueBoxBad(void){
     if(ch_bad_state == CH_DIALOGUE_BAD){
         DrawTexture(currentBg, 0, 0, WHITE);
 
-        DrawRectangle(40, 20, 1200, 50, BLACK);
-        DrawRectangleLines(40, 20, 1200, 50, MAGENTA);
-        DrawText(currentTitle, 70, 35, 24, YELLOW);
+        DrawText(currentTitle, 70, 35, 24, DIALOGUE_TITLE_COLOR);
 
-        DrawRectangle(40, 500, 1200, 180, BLACK);
-        DrawRectangleLines(40, 500, 1200, 180, MAGENTA);
+        DrawText(lines[current].speaker, 70, 515, 26, DIALOGUE_SPEAKER_COLOR);
+        DrawWrapped(lines[current].text, 70, 550, 1140, 22, DIALOGUE_TEXT_COLOR);
 
-        DrawText(lines[current].speaker, 70, 515, 26, RED);
-        DrawWrapped(lines[current].text, 70, 550, 1140, 22, WHITE);
-
-        DrawText("[Press SPACE]", 1080, 655, 18, PURPLE);
     } 
-    else{ 
-        BeginMode2D(cam);
-        DrawTilemap();
-        DrawPlayer(&player);
-        EndMode2D();
-    }
 }
 
 int IsDialogueFinishedBad(void){
-    return(current == total - 1);
+    return ch_bad_state == CH_BAD_ENDING;
 }
 
 void CloseDialogueBad(void){
     for(int i=0; i<textureCount; i++) UnloadTexture(textureCache[i]);
-    if(ch_bad_state == CH_BAD_ENDING){
-        ClosePlayer(&player);
-        CloseTilemap();
-    }
 }
