@@ -493,4 +493,11 @@ void DrawPuzzleSystem(void){
 
     DrawRectangle(0, 0, 1280, 70, (Color){20, 20, 40, 255});
     DrawText(TextFormat("CHAPTER %d — TRIAL OF KNOWLEDGE", chapter), 380, 20, 32, GOLD);
+
+    if(puzzleState==0 && currentQuestion<questionsPerChapter){
+
+        QuizQuestion *q = &currentQuestions[currentQuestion];
+
+        
+    }
 }
