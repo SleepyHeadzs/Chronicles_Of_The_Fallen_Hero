@@ -553,8 +553,8 @@ void DrawPuzzleSystem(void)
         DrawText("[UP/DOWN] Navigate  [ENTER] Select", 430, 710, 20, GRAY);
     }
 
-
-    if (puzzleState == 1){
+    if (puzzleState == 1)
+    {
         DrawRectangle(0, 0, 1280, 720, (Color){0, 0, 0, 200});
 
         if (lives > 0)
@@ -563,13 +563,16 @@ void DrawPuzzleSystem(void)
             DrawText(TextFormat("Final Score: %d / %d", score, questionsPerChapter), 450, 300, 36, GOLD);
             DrawText(TextFormat("Lives Remaining: %d", lives), 480, 360, 28, RED);
 
-            if (score == questionsPerChapter){
+            if (score == questionsPerChapter)
+            {
                 DrawText("Perfect. You know the story well.", 380, 430, 28, GREEN);
             }
-            else if (score >= questionsPerChapter / 2){
+            else if (score >= questionsPerChapter / 2)
+            {
                 DrawText("Well done. The path is open.", 420, 430, 28, YELLOW);
             }
-            else{
+            else
+            {
                 DrawText("You survived... barely.", 450, 430, 28, ORANGE);
             }
         }
@@ -577,7 +580,8 @@ void DrawPuzzleSystem(void)
         DrawText("Press ENTER to continue", 440, 550, 28, WHITE);
     }
 
-    if (puzzleState == 2){
+    if (puzzleState == 2)
+    {
         DrawRectangle(0, 0, 1280, 720, (Color){0, 0, 0, 200});
         DrawText("TRIAL FAILED", 430, 200, 60, RED);
         DrawText("You have lost all your lives.", 420, 300, 32, ORANGE);
@@ -585,4 +589,16 @@ void DrawPuzzleSystem(void)
         DrawText("The door remains closed...", 430, 450, 28, DARKGRAY);
         DrawText("Press ENTER to retry", 460, 550, 28, WHITE);
     }
+}
+
+int IsPuzzleFinished(void){
+    return puzzleState;
+}
+
+int GetPuzzleScore(void){
+    return score;
+}
+
+int GetPuzzleLives(void){
+    return lives;
 }
