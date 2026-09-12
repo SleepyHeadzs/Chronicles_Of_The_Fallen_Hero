@@ -537,3 +537,56 @@ static float timer;
 static const float TIME_LIMIT = 15.0f;
 static int chapter;
 static int questionsPerChapter;
+
+static void DrawWrapped(const char *text, int x, int y, int maxWidth, int fontSize, Color color)
+{
+    int len = strlen(text);
+    int lineStart = 0;
+    int lineY = y;
+    int lastSpace = -1;
+
+    for (int i = 0; i <= len; i++)
+    {
+        if (text[i] == ' ' || text[i] == '\0')
+        {
+            int wordLen = i - lineStart;
+            if (wordLen > 0)
+            {
+                char word[256];
+                strncpy(word, text + lineStart, wordLen);
+                word[wordLen] = '\0';
+
+                char testLine[4096];
+                if (lineStart > 0 && lastSpace > 0)
+                {
+                    int lineLen = lastSpace - lineStart + wordLen + 1;
+                    strncpy(testLine, text + lineStart, lineLen);
+                    testLine[lineLen] = '\0';
+                }
+                else
+                {
+                    strcpy(testLine, word);
+                }
+
+                if (MeasureText(testLine, fontSize) > maxWidth && lastSpace > lineStart)
+                {
+                    int cut = lastSpace - lineStart;
+                    char line[4096];
+
+                    strncpy(line, text + lineStart, cut);
+                    line[cut] = '\0';
+                    
+                    DrawText(line, x, lineY, fontSize, color);
+
+                    lineY += fontSize + 8;
+                    lineStart = lastSpace + 1;
+                }
+            }
+            lastSpace = i;
+        }
+    }
+    if (lineStart < len)
+    {
+        DrawText(text + lineStart, x, lineY, fontSize, color);
+    }
+}
