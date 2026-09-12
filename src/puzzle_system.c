@@ -516,4 +516,18 @@ void DrawPuzzleSystem(void)
                        currentQuestion + 1, questionsPerChapter),
             520, 90, 24, WHITE);
     }
+
+    DrawRectangle(100, 140, 1080, 25, DARKGRAY);
+
+    float timerPct = timer / TIME_LIMIT;
+
+    Color timerColor = (timerPct > 0.5f)
+                           ? GREEN
+                       : (timerPct > 0.25f)
+                           ? YELLOW
+                           : RED;
+
+    DrawRectangle(100, 140, 1080 * timerPct, 25, timerColor);
+
+    DrawText(TextFormat("%.1fs", timer), 615, 143, 20, BLACK);
 }
