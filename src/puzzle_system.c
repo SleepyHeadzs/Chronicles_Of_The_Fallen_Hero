@@ -463,7 +463,7 @@ void UpdatePuzzleSystem(void)
             selectedOption = 0;
     }
 
-    
+
     if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE))
     {
         if (selectedOption == q->correctAnswer)
@@ -486,4 +486,11 @@ void UpdatePuzzleSystem(void)
             selectedOption = 0;
         }
     }
+}
+
+void DrawPuzzleSystem(void){
+    ClearBackground((Color){10, 10, 25, 255});
+
+    DrawRectangle(0, 0, 1280, 70, (Color){20, 20, 40, 255});
+    DrawText(TextFormat("CHAPTER %d — TRIAL OF KNOWLEDGE", chapter), 380, 20, 32, GOLD);
 }
