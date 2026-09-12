@@ -463,7 +463,6 @@ void UpdatePuzzleSystem(void)
             selectedOption = 0;
     }
 
-
     if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE))
     {
         if (selectedOption == q->correctAnswer)
@@ -488,16 +487,33 @@ void UpdatePuzzleSystem(void)
     }
 }
 
-void DrawPuzzleSystem(void){
+void DrawPuzzleSystem(void)
+{
     ClearBackground((Color){10, 10, 25, 255});
 
     DrawRectangle(0, 0, 1280, 70, (Color){20, 20, 40, 255});
     DrawText(TextFormat("CHAPTER %d — TRIAL OF KNOWLEDGE", chapter), 380, 20, 32, GOLD);
 
-    if(puzzleState==0 && currentQuestion<questionsPerChapter){
+    if (puzzleState == 0 && currentQuestion < questionsPerChapter)
+    {
 
         QuizQuestion *q = &currentQuestions[currentQuestion];
 
-        
+        DrawText("LIVES: ", 50, 90, 24, WHITE);
+
+        for (int i = 0; i < 3; i++)
+        {
+            Color heartColor = (i < lives) ? RED : DARKGRAY;
+            DrawText("<3", 140 + (i * 40), 90, 24, heartColor);
+        }
+
+        DrawText(
+            TextFormat("SCORE: %d / %d", score, questionsPerChapter),
+            1000, 90, 24, GREEN);
+
+        DrawText(
+            TextFormat("QUESTION %d / %d",
+                       currentQuestion + 1, questionsPerChapter),
+            520, 90, 24, WHITE);
     }
 }
