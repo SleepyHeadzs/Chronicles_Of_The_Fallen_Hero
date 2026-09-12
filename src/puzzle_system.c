@@ -213,3 +213,312 @@ static QuizQuestion set2_riddles1[] = {
         1
     }
 };
+
+static QuizQuestion set3_riddles2[]={
+    {
+        "What has a neck but no head?",
+        {
+            "A snake",
+            "A bottle",
+            "A shirt",
+            "A guitar"
+        },
+        1
+    },
+    {
+        "I speak without a mouth and hear without ears. I have no body, but I come alive with wind. What am I?",
+        {
+            "A ghost",
+            "A shadow",
+            "An echo",
+            "A dream"
+        },
+        2
+    },
+    {
+        "A man pushes his car to a hotel and tells the owner he's bankrupt. Why?",
+        {
+            "He lost a bet",
+            "He's playing Monopoly",
+            "His car broke down",
+            "He has no money"
+        },
+        1
+    },
+    {
+        "What gets wetter the more it dries?",
+        {
+            "A sponge",
+            "A towel",
+            "The ground",
+            "Paint"
+        },
+        1
+    },
+    {
+        "Forward I am heavy, backward I am not. What am I?",
+        {
+            "The word 'ton'",
+            "A truck",
+            "Time",
+            "A rock"
+        },
+        0
+    },
+    {
+        "There's a one-story house where everything is pink. What color are the stairs?",
+        {
+            "Pink",
+            "There are no stairs",
+            "White",
+            "Brown"
+        },
+        1
+    },
+    {
+        "You see a boat filled with people, yet there isn't a single person on board. How?",
+        {
+            "They're all married",
+            "It's a ghost ship",
+            "They're below deck",
+            "It's a model"
+        },
+        0
+    },
+    {
+        "What can you catch but not throw?",
+        {
+            "A ball",
+            "A cold",
+            "A fish",
+            "A frisbee"
+        },
+        1
+    },
+    {
+        "I have branches but no fruit, trunk, or leaves. What am I?",
+        {
+            "A river",
+            "A bank",
+            "A family tree",
+            "A road"
+        },
+        1
+    },
+    {
+        "What has one eye but can't see?",
+        {
+            "A cyclops",
+            "A needle",
+            "A storm",
+            "A potato"
+        },
+        1
+    }
+};
+
+static QuizQuestion set4_general[] = {
+    {
+        "What is the largest ocean on Earth?",
+        {
+            "Atlantic Ocean",
+            "Indian Ocean",
+            "Pacific Ocean",
+            "Arctic Ocean"
+        },
+        2
+    },
+    {
+        "Which planet is known as the 'Red Planet'?",
+        {
+            "Venus",
+            "Mars",
+            "Jupiter",
+            "Saturn"
+        },
+        1
+    },
+    {
+        "Who painted the Mona Lisa?",
+        {
+            "Michelangelo",
+            "Leonardo da Vinci",
+            "Raphael",
+            "Donatello"
+        },
+        1
+    },
+    {
+        "What is the capital city of Australia?",
+        {
+            "Sydney",
+            "Melbourne",
+            "Canberra",
+            "Brisbane"
+        },
+        2
+    },
+    {
+        "Which element has the chemical symbol 'Fe'?",
+        {
+            "Fluorine",
+            "Francium",
+            "Iron",
+            "Fermium"
+        },
+        2
+    },
+    {
+        "How many continents are there?",
+        {
+            "Five",
+            "Six",
+            "Seven",
+            "Eight"
+        },
+        2
+    },
+    {
+        "What is the longest river in the world?",
+        {
+            "Amazon",
+            "Nile",
+            "Yangtze",
+            "Mississippi"
+        },
+        1
+    },
+    {
+        "Who wrote 'Romeo and Juliet'?",
+        {
+            "Charles Dickens",
+            "William Shakespeare",
+            "Jane Austen",
+            "Mark Twain"
+        },
+        1
+    },
+    {
+        "What is the tallest mountain in the world?",
+        {
+            "K2",
+            "Mount Kilimanjaro",
+            "Mount Everest",
+            "Mount Fuji"
+        },
+        2
+    },
+    {
+        "Which country gifted the Statue of Liberty to the United States?",
+        {
+            "United Kingdom",
+            "Germany",
+            "France",
+            "Spain"
+        },
+        2
+    }
+};
+
+static QuizQuestion set5_maths[]={
+    {
+        "If a hen and a half lays an egg and a half in a day and a half, how many eggs does one hen lay in one day?",
+        {
+            "0.5 eggs",
+            "1 egg",
+            "1.5 eggs",
+            "2 eggs"
+        },
+        1
+    },
+    {
+        "I am a three-digit number. My tens digit is five more than my units digit. My hundreds digit is eight less than my tens digit. What number am I?",
+        {
+            "194",
+            "491",
+            "950",
+            "592"
+        },
+        0
+    },
+    {
+        "A bat and a ball cost $1.10 together. The bat costs $1.00 more than the ball. How much does the ball cost?",
+        {
+            "5 cents",
+            "10 cents",
+            "$1.00",
+            "$1.05"
+        },
+        0
+    },
+    {
+        "If you multiply me by any other number, the answer will always remain the same. What number am I?",
+        {
+            "One",
+            "Zero",
+            "Negative one",
+            "Infinity"
+        },
+        1
+    },
+    {
+        "A rope burns unevenly and takes exactly 60 minutes to burn completely. How do you measure exactly 45 minutes using two such ropes?",
+        {
+            "Light both ends of one rope and one end of the other",
+            "Fold the rope in half",
+            "Burn them sequentially",
+            "Use a stopwatch"
+        },
+        0
+    },
+    {
+        "Three friends split a $30 bill evenly. They get a $5 refund, take $1 each, and the waiter keeps $2. They paid $9 each = $27, plus $2 tip = $29. Where is the missing $1?",
+        {
+            "The waiter stole it",
+            "There is no missing dollar",
+            "It's in the refund",
+            "Math error"
+        },
+        1
+    },
+    {
+        "What is the next number in the sequence: 1, 11, 21, 1211, 111221, ...?",
+        {
+            "221111",
+            "312211",
+            "13112221",
+            "1113213211"
+        },
+        1
+    },
+    {
+        "If two's company and three's a crowd, what are four and five?",
+        {
+            "A party",
+            "Nine",
+            "Too many",
+            "A group"
+        },
+        1
+    },
+    {
+        "A clock loses 15 minutes every hour. If set correctly at noon, what will it show at midnight (real time)?",
+        {
+            "9:00 PM",
+            "10:00 PM",
+            "11:00 PM",
+            "Midnight"
+        },
+        0
+    },
+    {
+        "I'm an even number. Remove one letter and I become odd. What number am I?",
+        {
+            "Eight",
+            "Six",
+            "Four",
+            "Ten"
+        },
+        0
+    }
+};
