@@ -530,4 +530,8 @@ void DrawPuzzleSystem(void)
     DrawRectangle(100, 140, 1080 * timerPct, 25, timerColor);
 
     DrawText(TextFormat("%.1fs", timer), 615, 143, 20, BLACK);
+
+    DrawRectangle(80, 190, 1120, 140, (Color){25, 25, 45, 255});
+    DrawRectangleLinesEx((Rectangle){80, 190, 1120, 140}, 3, GOLD);
+    DrawWrapped(q->question, 120, 220, 1040, 26, WHITE);
 }
