@@ -1,8 +1,6 @@
 #include "raylib.h"
 #include "dialogue.h"
-#include "player.h"
-#include "tilemap.h"
-#include "camera.h"
+#include "dialogue_style.h"
 #include "scene_ch1_forest.h"
 #include <string.h>
 
@@ -67,7 +65,6 @@ typedef enum{
 }Ch1State;
 
 static Ch1State ch1State;
-static Player player;
 
 static Texture2D GetTexture(const char *name){
     if(name[0] == '\0') return (Texture2D){0};
@@ -114,9 +111,12 @@ void InitDialogueCh1(void){
     currentBg = GetTexture(lines[0].image);
     ch1State = CH1_DIALOGUE;
 }
-static Camera2D cam;
 void UpdateDialogueCh1(void){
     if(ch1State == CH1_DIALOGUE){
+        if(DialogueSkipClicked()){
+            ch1State = CH1_FOREST;
+            return;
+        }
         if(IsKeyPressed(KEY_SPACE)){
             if(current < total-1){
                 current++;
@@ -124,51 +124,29 @@ void UpdateDialogueCh1(void){
                 currentBg = GetTexture(lines[current].image);
             } 
             else{
-                InitTilemap();
-                InitPlayer(&player);
-                InitGameCamera(&cam); 
                 ch1State = CH1_FOREST;
             }
         }
     } 
-    else{
-        UpdatePlayer(&player);
-        UpdateGameCamera(&cam, player.position);
-    }
 }
 
 void DrawDialogueBoxCh1(void){
     if(ch1State == CH1_DIALOGUE){
         DrawTexture(currentBg, 0, 0, WHITE);
 
-        DrawRectangle(40, 20, 1200, 50, BLACK);
-        DrawRectangleLines(40, 20, 1200, 50, MAGENTA);
-        DrawText(currentTitle, 70, 35, 24, YELLOW);
+        DrawText(currentTitle, 70, 35, 24, DIALOGUE_TITLE_COLOR);
 
-        DrawRectangle(40, 500, 1200, 180, BLACK);
-        DrawRectangleLines(40, 500, 1200, 180, MAGENTA);
+        DrawText(lines[current].speaker, 70, 515, 26, DIALOGUE_SPEAKER_COLOR);
+        DrawWrapped(lines[current].text, 70, 550, 1140, 22, DIALOGUE_TEXT_COLOR);
+        DrawDialogueSkipButton();
 
-        DrawText(lines[current].speaker, 70, 515, 26, RED);
-        DrawWrapped(lines[current].text, 70, 550, 1140, 22, WHITE);
-
-        DrawText("[Press SPACE]", 1080, 655, 18, PURPLE);
     } 
-    else{ 
-        BeginMode2D(cam);
-        DrawTilemap();
-        DrawPlayer(&player);
-        EndMode2D();
-    }
 }
 
 int IsDialogueFinishedCh1(void){
-    return(current == total - 1);
+    return ch1State == CH1_FOREST;
 }
 
 void CloseDialogueCh1(void){
     for(int i=0; i<textureCount; i++) UnloadTexture(textureCache[i]);
-    if(ch1State == CH1_FOREST){
-        ClosePlayer(&player);
-        CloseTilemap();
-    }
 }
