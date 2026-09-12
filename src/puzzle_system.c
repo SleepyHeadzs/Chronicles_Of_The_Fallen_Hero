@@ -575,7 +575,7 @@ static void DrawWrapped(const char *text, int x, int y, int maxWidth, int fontSi
 
                     strncpy(line, text + lineStart, cut);
                     line[cut] = '\0';
-                    
+
                     DrawText(line, x, lineY, fontSize, color);
 
                     lineY += fontSize + 8;
@@ -589,4 +589,32 @@ static void DrawWrapped(const char *text, int x, int y, int maxWidth, int fontSi
     {
         DrawText(text + lineStart, x, lineY, fontSize, color);
     }
+}
+
+void InitPuzzleSystem(int ch){
+    chapter = ch;
+
+    int setIndex = (ch - 1) % 5;
+    currentQuestions = allSets[setIndex];
+    currentSetSize = setSizes[setIndex];
+
+    questionsPerChapter = 5;
+    if (questionsPerChapter > currentSetSize)
+        questionsPerChapter = currentSetSize;
+
+    for (int i = currentSetSize - 1; i > 0; i--)
+    {
+        int j = GetRandomValue(0, i);
+        
+        QuizQuestion temp = currentQuestions[i];
+        currentQuestions[i] = currentQuestions[j];
+        currentQuestions[j] = temp;
+    }
+
+    currentQuestion = 0;
+    selectedOption = 0;
+    lives = 3;
+    score = 0;
+    timer = TIME_LIMIT;
+    puzzleState = 0;
 }
