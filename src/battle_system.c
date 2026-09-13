@@ -328,7 +328,7 @@ static void Damage(Fighter *a,Fighter *t,float range)
 {
     if(t->dead||t->invincible>0) return;
     Vector2 d={t->pos.x-a->pos.x,t->pos.y-a->pos.y};
-    bool facing=(a->face>0&&d.x>=-12)||(a->face<0&&d.x<=12);
+    int facing=(a->face>0&&d.x>=-12)||(a->face<0&&d.x<=12);
     if(Dist(a->pos,t->pos)<=range&&facing)
     {
         t->hp-=a->power;
@@ -342,7 +342,7 @@ static void Damage(Fighter *a,Fighter *t,float range)
     }
 }
 
-static void SeparateAll(void)\
+static void SeparateAll(void)
 {
     for(int i=0;i<enemyCount;i++)
     {
@@ -351,9 +351,11 @@ static void SeparateAll(void)\
         float l=Len(d),m=enemies[i].radius+player.radius;
         if(l>.01f&&l<m)
         {
-            float p=(m-l)/2;d.x/=l;
+            float p=(m-l)/2;
+            d.x/=l;
             d.y/=l;player.pos.x-=d.x*p;
-            player.pos.y-=d.y*p;enemies[i].pos.x+=d.x*p;
+            player.pos.y-=d.y*p;
+            enemies[i].pos.x+=d.x*p;
             enemies[i].pos.y+=d.y*p;
         }
     }
@@ -400,11 +402,16 @@ static void UpdateFireballs(float dt)
         f->life-=dt;
         if(Dist(f->pos,player.pos)<f->radius+player.radius&&player.invincible<=0)
         {
-            player.hp-=22;player.hit=.22f;player.invincible=.45f;
-            SpawnParticles(player.pos,ORANGE,15);shake=9;f->active=false;
+            player.hp-=22;
+            player.hit=.22f;
+            player.invincible=.45f;
+            SpawnParticles(player.pos,ORANGE,15);
+            shake=9;
+            f->active=false;
             if(player.hp<=0)
             {
-                player.hp=0;player.dead=true;
+                player.hp=0;
+                player.dead=true;
             }
         }
         if(f->life<=0||f->pos.x<20||f->pos.x>940||f->pos.y<80||f->pos.y>700)
@@ -426,27 +433,62 @@ static void UpdateEnemy(Fighter *e,int index,float dt)
     if(e->think<=0)
     {
         e->think=GetRandomValue(15,32)/60.0f;
-        if(e->hit>0)e->mode=RETREAT;
-        else if(player.swing>.15f&&distance<105&&GetRandomValue(0,99)<55)e->mode=STRAFE;
-        else if(distance<66)e->mode=GetRandomValue(0,99)<70?ATTACK:RETREAT;
-        else e->mode=CHASE;}
+        if(e->hit>0)
+        {
+            e->mode=Back;
+        }
+        else if(player.swing>.15f&&distance<105&&GetRandomValue(0,99)<55)
+        {
+            e->mode=Side;
+        }
+        else if(distance<66)
+        {
+            if(GetRandomValue(0,99)<70)
+            {
+                e->mode=Attack;
+            }
+            else
+            {
+                e->mode=Back;
+            }
+        }
+        else 
+        {
+            e->mode=CHASE;
+        }
         if(e->mode==CHASE)
         {
             Move(e,toward,accel,dt);
-            if(distance<82)StartAttack(e,.38f,.85f+index*.08f);
+            if(distance<82)
+            {
+                StartAttack(e,.38f,.85f+index*.08f);
+            }
         }
         if(e->hit<=0)
         {
             Vector2 toward={player.pos.x-e->pos.x,player.pos.y-e->pos.y};
             float accel=310+chapterNumber*8,maxSpeed=78+chapterNumber*3;
             else if(e->mode==ATTACK)
+            {
+                Move(e,toward,accel*.3f,dt);
+                StartAttack(e,.38f,.85f+index*.08f);
+            }
+        else if(e->mode==RETREAT)
         {
-            Move(e,toward,accel*.3f,dt);
-            StartAttack(e,.38f,.85f+index*.08f);
+            Move(e,(Vector2){-toward.x,-toward.y},accel,dt);
         }
-        else if(e->mode==RETREAT)Move(e,(Vector2){-toward.x,-toward.y},accel,dt);
-        else Move(e,(Vector2){-toward.y,toward.x},accel*1.15f,dt);
-        e->face=player.pos.x>=e->pos.x?1:-1;
+        else 
+        {
+            Move(e,(Vector2){-toward.y,toward.x},accel*1.15f,dt);
+        }
+        if(player.pos.x >= e->pos.x)
+        {
+            e->face=1;
+        }
+        else
+        {
+            e->face=-1;
+        }
         if(e->swing>0&&!e->attackLanded&&e->swing<=.18f)
         {
             Damage(e,&player,72);
@@ -464,7 +506,16 @@ static void UpdateBoss(float dt){
         Physics(b,100,dt);
         return;
     }
-    float distance=Dist(player.pos,b->pos),phase=b->hp<b->maxHp/2?1.45f:1.0f;
+    float distance=Dist(player.pos,b->pos);
+    float phase;
+    if(b->hp<b->maxHp/2)
+    {
+        phase=1.45f;
+    }
+    else
+    {
+        phase=1.0f;
+    }
     Vector2 toward={player.pos.x-b->pos.x,player.pos.y-b->pos.y};
     bossSpecialTimer-=dt;
     if(bossSpecialTimer<=0)
@@ -475,8 +526,17 @@ static void UpdateBoss(float dt){
             Vector2 side={player.pos.x+GetRandomValue(-150,150),player.pos.y+GetRandomValue(-120,120)};
             SpawnFireball(b->pos,side);
         }
-        bossSpecialTimer=(phase>1?1.15f:1.8f);
-        bossCastTime=.55f;b->mode=STRAFE;
+        
+        if(phase>1)
+        {
+            bossSpecialTimer=1.15f;
+        }
+        else
+        {
+            bossSpecialTimer=1.8f;
+        }
+        bossCastTime=.55f;
+        b->mode=STRAFE;
     }
     if(b->hit<=0)
     {
@@ -490,11 +550,18 @@ static void UpdateBoss(float dt){
             Move(b,(Vector2){-toward.y,toward.x},270*phase,dt);
         }
     } 
-    b->face=player.pos.x>=b->pos.x?1:-1;
+    if(player.pos.x>=b->pos.x)
+    {
+        b->face=1;
+    }
+    else
+    {
+        b->face=-1;
+    }
     if(b->swing>0&&!b->attackLanded&&b->swing<=.23f)
     {
         Damage(b,&player,112);
-        b->attackLanded=true;
+        b->attackLanded=1;
     }
     if(bossCastTime>0)
     {
@@ -612,7 +679,8 @@ static void DrawRegular(const Fighter *f,Texture2D tex,float size,bool enemyActo
     float frameW=enemyActor?tex.width/8.0f:100.0f,sourceY=enemyActor?enemySourceY:0,sourceH=enemyActor?enemySourceH:100.0f;
     float sx=f->face<0?(frame+1)*frameW:frame*frameW;
     Rectangle src={sx,sourceY,frameW*f->face,sourceH};
-    Rectangle dst={x,y-31,size,size};Color tint=f->hit>0?(Color){255,145,145,255}:WHITE;
+    Rectangle dst={x,y-31,size,size};
+    Color tint=f->hit>0?(Color){255,145,145,255}:WHITE;
     if(f->invincible>0&&((int)(f->invincible*30)%2)==0)tint.a=120;
     DrawTexturePro(tex,src,dst,(Vector2){size/2,size/2},0,tint);
 }
@@ -626,14 +694,23 @@ static void DrawBoss(const Fighter *b)
         return;
     }
     int frame;
-    if(b->dead)frame=7;
-    else if(bossCastTime>0)frame=bossCastTime>.28f?6:3;
+    if(b->dead)
+    {
+        frame=7;
+    }
+    else if(bossCastTime>0)
+    {
+        frame=bossCastTime>.28f?6:3;
+    }
     else if(b->swing>0)
     {
         float progress=1.0f-b->swing/.48f;
         frame=progress<.34f?4:(progress<.72f?5:6);
     }
-    else frame=((int)(b->anim*1.2f))%4;
+    else 
+    {
+        frame=((int)(b->anim*1.2f))%4;
+    }
     float cw=bossTexture.width/8.0f,sourceX=b->face<0?(frame+1)*cw:frame*cw;
     Rectangle src={sourceX,300,(float)(cw*b->face),270};
     Rectangle dst={x,y-64,190,210};
@@ -692,7 +769,8 @@ void DrawBattleSystem(void){
         int j=i-1;
         while(j>=0&&drawOrder[j]->pos.y>item->pos.y)
         {
-            drawOrder[j+1]=drawOrder[j];j--;
+            drawOrder[j+1]=drawOrder[j];
+            j--;
         }
         drawOrder[j+1]=item;
     }
