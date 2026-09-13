@@ -139,6 +139,33 @@ static void UpdatePlayer(float dt){
     Physics(&player,player.dash>0?260:125,dt);
 }
 
+static void StartAttack(Fighter *f,float duration,float cooldown)
+{
+    if(f->cooldown<=0&&f->hit<=0&&!f->dead)
+    {
+        f->swing=duration;
+        f->cooldown=cooldown;
+        f->attackLanded=false;
+    }
+}
+static void Damage(Fighter *a,Fighter *t,float range)
+{
+    if(t->dead||t->invincible>0) return;
+    Vector2 d={t->pos.x-a->pos.x,t->pos.y-a->pos.y};
+    bool facing=(a->face>0&&d.x>=-12)||(a->face<0&&d.x<=12);
+    if(Dist(a->pos,t->pos)<=range&&facing)
+    {
+        t->hp-=a->power;
+        if(t->hp<0)t->hp=0;
+        t->hit=.24f;
+        t->invincible=.36f;
+        Vector2 n=Norm(d);
+        t->vel=(Vector2){n.x*190,n.y*145};
+        SpawnParticles(t->pos,a==&player?ORANGE:RED,18);
+        shake=10;if(t->hp<=0)t->dead=true;
+    }
+}
+
 static Fighter NewFighter(float x, float y, int hp, int power, int face, float radius)
 {
     Fighter F={0};
