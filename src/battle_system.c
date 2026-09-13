@@ -33,8 +33,8 @@ typedef struct
     Vector2 pos, vel;
     float radius;
     int hp, Maxhp, power, face;
-    float swing, cooldown, hit, invincible, dash, dashCooldown, animation, ai;
-    int frame, dead, atksuc;
+    float swing, cooldown, hit, invincible, anim, think;
+    int frame, dead, attackLanded;
     AI mode;
 } Fighter;
 
@@ -273,7 +273,7 @@ static void Physics(Fighter *f,float maxSpeed,float dt)
     }
     f->pos.x+=f->vel.x*dt;
     f->pos.y+=f->vel.y*dt;
-    float damp=powf(f->dash>0?.90f:.72f,dt*60);
+    float damp=powf(.72f,dt*60);
     f->vel.x*=damp;f->vel.y*=damp;
     f->pos.x=Clampf(f->pos.x,55,905);
     f->pos.y=Clampf(f->pos.y,115,655);
@@ -281,8 +281,6 @@ static void Physics(Fighter *f,float maxSpeed,float dt)
     if(f->cooldown>0) f->cooldown-=dt;
     if(f->hit>0) f->hit-=dt;
     if(f->invincible>0) f->invincible-=dt;
-    if(f->dash>0) f->dash-=dt;
-    if(f->dashCooldown>0) f->dashCooldown-=dt;
     f->anim+=dt*(speed>20?10:4);
     f->frame=((int)f->anim)%8;
 }
@@ -295,7 +293,6 @@ static void UpdatePlayer(float dt){
     }
     Vector2 input={(IsKeyDown(KEY_D)||IsKeyDown(KEY_RIGHT))-(IsKeyDown(KEY_A)||IsKeyDown(KEY_LEFT)),(IsKeyDown(KEY_S)||IsKeyDown(KEY_DOWN))-(IsKeyDown(KEY_W)||IsKeyDown(KEY_UP))};
     if(player.hit<=0)Move(&player,input,470,dt);
-    if((IsKeyPressed(KEY_LEFT_SHIFT)||IsKeyPressed(KEY_RIGHT_SHIFT)||IsKeyPressed(KEY_X))&&player.dashCooldown<=0&&Len(input)>0){Vector2 n=Norm(input);player.vel=(Vector2){n.x*260,n.y*260};player.dash=.15f;player.dashCooldown=1.15f;player.invincible=.2f;}
     if(IsKeyPressed(KEY_SPACE)||IsKeyPressed(KEY_Z))StartAttack(&player,.34f,.52f);
     if(player.swing>0&&!player.attackLanded&&player.swing<=.18f)
     {
@@ -312,7 +309,7 @@ static void UpdatePlayer(float dt){
         }
         player.attackLanded=1;
     }
-    Physics(&player,player.dash>0?260:125,dt);
+    Physics(&player,125,dt);
 }
 
 static void StartAttack(Fighter *f,float duration,float cooldown)
@@ -571,6 +568,47 @@ static void UpdateBoss(float dt){
     UpdateFireballs(dt);
 }
 
+void UpdateBattleSystem(void)
+{
+    float dt=GetFrameTime();
+    if(dt>.05f)dt=.05f;
+    if(state==WON)
+    {
+        if(IsKeyPressed(KEY_ENTER)||IsKeyPressed(KEY_SPACE))state=CONFIRMED;
+        return;
+    }
+    if(state==LOST){
+        if(IsKeyPressed(KEY_ENTER)||IsKeyPressed(KEY_SPACE))state=FAILED_CONFIRMED;
+        return;
+    }
+    if(state!=FIGHTING)return;
+    if(introTimer>0)introTimer-=dt;
+    else
+    {
+        UpdatePlayer(dt);
+        if(bossBattle)UpdateBoss(dt);
+        else for(int i=0;i<enemyCount;i++)
+        {
+            UpdateEnemy(&enemies[i],i,dt);
+        }
+        SeparateAll();
+    }
+    for(int i=particleCount-1;i>=0;i--)
+    {
+        Particle *p=&particles[i];
+        p->pos.x+=p->vel.x*dt;
+        p->pos.y+=p->vel.y*dt;
+        p->vel.x*=.92f;
+        p->vel.y*=.92f;
+        p->life-=dt;
+        if(p->life<=0)particles[i]=particles[--particleCount];
+    }
+    if(shake>0) shake*=.72f;
+    int alive=0;
+    for(int i=0;i<enemyCount;i++) if(!enemies[i].dead) alive++;
+    if(alive==0) state=WON;
+    else if(player.dead) state=LOST;
+}
 void InitBattleSystem(int chapter)
 {
     chapterNumber=chapter;
@@ -827,7 +865,6 @@ void DrawBattleSystem(void){
     DrawBar(902,45,350,totalHp,totalMax,bossBattle?(Color){238,112,30,255}:(Color){200,68,81,255},label,true);
     DrawText("WASD / ARROWS  Move",22,650,14,RAYWHITE);
     DrawText("SPACE / Z  Sword",22,672,14,RAYWHITE);
-    DrawText("SHIFT / X  Dash",22,694,14,RAYWHITE);
     if(introTimer>0)
     {
         DrawRectangle(465,300,350,82,(Color){3,12,9,225});
