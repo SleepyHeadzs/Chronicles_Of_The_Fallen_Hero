@@ -1,6 +1,7 @@
 #include "raylib.h"
-#include "dialogue.h"
 #include "game.h"
+#include "intro.h"
+#include "dialogue.h"
 #include "scene_ch1_forest.h"
 #include "scene_ch2_burned_village.h"
 #include "scene_ch3_diary.h"
@@ -9,18 +10,37 @@
 #include "ending_bad.h"
 #include "ending_good.h"
 #include "ending_secret.h"
+#include "battle_system.h"
+#include "puzzle_system.h"
+#include <stdio.h>
 
 typedef enum{
+    STATE_TITLE,
     STATE_PROLOGUE,
+    STATE_CHAPTER_CARD,
     STATE_CHAPTER1_FOREST,
+    STATE_ROUTE_CHOICE,
+    STATE_CH1_BATTLE,
+    STATE_CH1_PUZZLE,
     STATE_CHAPTER2_VILLAGE,
+    STATE_CH2_BATTLE,
+    STATE_CH2_PUZZLE,
     STATE_CHAPTER3_DIARY,
+    STATE_CH3_BATTLE,
+    STATE_CH3_PUZZLE,
     STATE_CHAPTER4_TRUTH,
+    STATE_CH4_BATTLE,
+    STATE_CH4_PUZZLE,
     STATE_CHAPTER5_FINAL,
+    STATE_CH5_BATTLE,
+    STATE_CH5_PUZZLE,
     STATE_CHOICE,
+    STATE_BAD_ENDING_BATTLE,
+    STATE_REVENGE_BOSS_BATTLE,
     STATE_ENDING_BAD,
     STATE_ENDING_GOOD,
-    STATE_ENDING_SECRET
+    STATE_ENDING_SECRET,
+    STATE_THE_END,
 }GameState;
 
 static GameState state;
