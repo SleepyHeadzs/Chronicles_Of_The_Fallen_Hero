@@ -423,11 +423,10 @@ void InitPuzzleSystem(int ch)
     }
 
     currentQuestion = 0;
-    selectedOption = 0;
     lives = 3;
     score = 0;
-    timer = TIME_LIMIT;
     puzzleState = 0;
+    wrongFlash=0.0f;
 }
 
 void UpdatePuzzleSystem(void)
