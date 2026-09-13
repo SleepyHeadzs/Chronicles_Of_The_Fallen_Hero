@@ -34,7 +34,7 @@ typedef struct
     float swing, cooldown, hit, invincible, dash, dashCooldown, animation, ai;
     int frame, dead, atksuc;
     AI mode;
-};
+} Fighter;
 
 typedef struct
 {
@@ -60,7 +60,11 @@ static BattleState state;
 static float introTimer,shake,bossSpecialTimer,bossCastTime;
 static int bossBattle,badEndingBattle;
 
-
+static Fighter Fighter(float x, float y, int hp, int power, int face, float radius)
+{
+    Fighter f={0};
+    f
+}
 
 int IsBattleFinished(void)
 {
