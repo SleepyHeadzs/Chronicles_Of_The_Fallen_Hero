@@ -178,6 +178,18 @@ static Fighter NewFighter(float x, float y, int hp, int power, int face, float r
     return f;
 }
 
+static void SpawnParticles(Vector2 pos,Color color,int count)
+{
+    for(int i=0;i<count&&particleCount<MAX_PARTICLES;i++)
+    {
+        float a=GetRandomValue(0,359)*PI_F/180,s=GetRandomValue(45,170);
+        Particle *p=&particles[particleCount++];
+        p->pos=pos;
+        p->vel=(Vector2){cosf(a)*s,sinf(a)*s};
+        p->life=GetRandomValue(20,50)/60.0f;p->color=color;
+    }
+}
+
 void InitBattleSystem(int chapter)
 {
     chapterNumber=chapter;
