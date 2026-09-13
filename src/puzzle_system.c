@@ -2,14 +2,13 @@
 #include "puzzle_system.h"
 #include <string.h>
 
-typedef struct
-{
-    const char *question; //question points to a text string(read-only)
-    const char *options[4];  //array containing 4 pointers to strings(read-only)
+typedef struct{
+    const char *question; 
+    const char *options[4];  
     int correctAnswer;
 } QuizQuestion;
 
-static QuizQuestion set1_tech[] = {         //an array of QuizQuestion structures
+static QuizQuestion set1_tech[] = {
     {"What does 'HTTP' stand for?",
      {"HyperText Transfer Protocol",
       "High Tech Transfer Process",
@@ -333,18 +332,18 @@ static QuizQuestion set5_maths[] = {
       "Ten"},
      0}
 };
-//static = private
 
-static QuizQuestion *allSets[5] = {set1_tech, set2_riddles1, set3_riddles2, set4_general, set5_maths};  //i.e. allSets[0] = set1_tech...
+
+static QuizQuestion *allSets[5] = {set1_tech, set2_riddles1, set3_riddles2, set4_general, set5_maths}; 
 static int setSizes[5] = {10, 10, 10, 10, 10};
 
-static QuizQuestion *currentQuestions; //Which question-set player currently using
+static QuizQuestion *currentQuestions; 
 static int currentSetSize;
-static int currentQuestion; //which question the player is currently answering
-static int puzzleState;  //puzzleState = 0 -Playing, puzzleState = 1 -Complete, puzzleState = 2 -Failed
+static int currentQuestion; 
+static int puzzleState;  
 static int lives;
 static int score;
-static int chapter;  //stores the current chapter number
+static int chapter;  
 static int questionsPerChapter;
 static float wrongFlash;
 
@@ -352,8 +351,8 @@ static void DrawWrapped(const char *text, int x, int y, int maxWidth, int fontSi
 {
     int len = strlen(text);
     int lineStart = 0;
-    int lineY = y;     //stores the current vertical position.
-    int lastSpace = -1;  //The function wants to break text at spaces, not in the middle of words.
+    int lineY = y;     
+    int lastSpace = -1;  
 
     for (int i = 0; i <= len; i++)
     {
@@ -362,11 +361,11 @@ static void DrawWrapped(const char *text, int x, int y, int maxWidth, int fontSi
             int wordLen = i - lineStart;
             if (wordLen > 0)
             {
-                char word[256];  //temporary string
+                char word[256]; 
                 strncpy(word, text + lineStart, wordLen);
                 word[wordLen] = '\0';
 
-                char testLine[4096];  //another temporary string
+                char testLine[4096];  
                 if (lineStart > 0 && lastSpace > 0)
                 {
                     int lineLen = lastSpace - lineStart + wordLen + 1;
@@ -378,7 +377,7 @@ static void DrawWrapped(const char *text, int x, int y, int maxWidth, int fontSi
                     strcpy(testLine, word);
                 }
 
-                if (MeasureText(testLine, fontSize) > maxWidth && lastSpace > lineStart)  //MeasureText() is a Raylib function -returns the width
+                if (MeasureText(testLine, fontSize) > maxWidth && lastSpace > lineStart)  
                 {
                     int cut = lastSpace - lineStart;
                     char line[4096];
@@ -392,12 +391,12 @@ static void DrawWrapped(const char *text, int x, int y, int maxWidth, int fontSi
                     lineStart = lastSpace + 1;
                 }
             }
-            lastSpace = i;  //keeps changing to the newest space.
+            lastSpace = i;
         }
     }
     if (lineStart < len)
     {
-        DrawText(text + lineStart, x, lineY, fontSize, color); //draws that remaining part
+        DrawText(text + lineStart, x, lineY, fontSize, color); 
     }
 }
 
