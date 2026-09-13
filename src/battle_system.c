@@ -55,10 +55,10 @@ static int enemyCount,chapterNumber,particleCount;
 static Particle particles[MAX_PARTICLES];
 static Fireball fireballs[MAX_FIREBALLS];
 static Texture2D mapTexture,heroTexture,enemyTexture,bossTexture;
-static bool actorsLoaded;
+static int actorsLoaded;
 static BattleState state;
 static float introTimer,shake,bossSpecialTimer,bossCastTime;
-static bool bossBattle,badEndingBattle;
+static int bossBattle,badEndingBattle;
 
 
 
