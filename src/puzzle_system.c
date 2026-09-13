@@ -429,16 +429,28 @@ void InitPuzzleSystem(int ch)
     wrongFlash=0.0f;
 }
 
-void UpdatePuzzleSystem(void)
-{
-    if (puzzleState != 0)
+void UpdatePuzzleSystem(void){
+    
+    if (puzzleState == 1)
     {
-        if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE))
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
         {
-            puzzleState = 1;
+            puzzleState = 3;
         }
         return;
     }
+
+    if (puzzleState == 2)
+    {
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        {
+            puzzleState = 4;
+        }
+        return;
+    }
+    if (puzzleState != 0)
+        return;
+
     if (currentQuestion >= questionsPerChapter)
     {
         puzzleState = 1;
@@ -446,56 +458,35 @@ void UpdatePuzzleSystem(void)
     }
 
     QuizQuestion *q = &currentQuestions[currentQuestion];
-    timer -= GetFrameTime();
+    if (wrongFlash > 0.0f)
+        wrongFlash -= GetFrameTime();
 
-    if (timer <= 0)
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
     {
-        timer = 0;
-        lives--;
-        if (lives <= 0)
+        Vector2 mouse = GetMousePosition();
+        for (int i = 0; i < 4; i++)
         {
-            puzzleState = 2;
-            return;
-        }
-        currentQuestion++;
-        timer = TIME_LIMIT;
-        selectedOption = 0;
-        return;
-    }
-
-    if (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W))
-    {
-        selectedOption--;
-        if (selectedOption < 0)
-            selectedOption = 3;
-    }
-    if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S))
-    {
-        selectedOption++;
-        if (selectedOption > 3)
-            selectedOption = 0;
-    }
-
-    if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE))
-    {
-        if (selectedOption == q->correctAnswer)
-        {
-            score++;
-            currentQuestion++;
-            timer = TIME_LIMIT;
-            selectedOption = 0;
-        }
-        else
-        {
-            lives--;
-            if (lives <= 0)
+            Rectangle answerArea = {210, (float)(355 + i * 75), 860, 58};
+            if (CheckCollisionPointRec(mouse, answerArea))
             {
-                puzzleState = 2;
-                return;
+                if (i == q->correctAnswer)
+                {
+                    score++;
+                    currentQuestion++;
+                    wrongFlash = 0.0f;
+                }
+                else
+                {
+                    lives--;
+                    if (lives <= 0)
+                    {
+                        puzzleState = 2;
+                        return;
+                    }
+                    wrongFlash = 1.25f;
+                }
+                break;
             }
-            currentQuestion++;
-            timer = TIME_LIMIT;
-            selectedOption = 0;
         }
     }
 }
