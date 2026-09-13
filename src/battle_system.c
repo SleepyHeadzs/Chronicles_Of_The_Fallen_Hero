@@ -32,7 +32,7 @@ typedef struct
 {
     Vector2 pos, vel;
     float radius;
-    int hp, Maxhp, power, face;
+    int hp, maxHp, power, face;
     float swing, cooldown, hit, invincible, anim, think;
     int frame, dead, attackLanded;
     AI mode;
@@ -164,7 +164,7 @@ static void LoadActors(void)
     {
         heroPath = "src/hero_sheet.png";
     }
-    Texture2D heroTexture = LoadTexture(heroPath);
+    heroTexture=LoadTexture(Existing(FileExists("hero_sheet.png")||FileExists("src/hero_sheet.png")?"hero_sheet.png":"Soldier_Walk.png"));
     bossTexture=LoadBossTexture();
     actorsLoaded=true;
 }
@@ -227,9 +227,9 @@ static void LoadChapterMap(int chapter)
 static Fighter NewFighter(float x, float y, int hp, int power, int face, float radius)
 {
     Fighter f={0};
-    f.pos=(x,y);
+    f.pos=(Vector2){x,y};
     f.radius=radius;
-    f.maxhp=hp;
+    f.maxHp=hp;
     f.hp=hp;
     f.power=power;
     f.face=face;
@@ -257,11 +257,14 @@ static void Move(Fighter *f,Vector2 direction,float accel,float dt)
     f->vel.y+=n.y*accel*dt;
     if(n.x!=0)
     {
-        f->face=1;
-    }
-    else
-    {
-        f->face=-1;
+        if(n.x>0)
+        {
+            f->face=1;
+        }
+        else
+        {
+            f->face=-1;
+        }
     }
 }
 static void Physics(Fighter *f,float maxSpeed,float dt)
@@ -284,33 +287,6 @@ static void Physics(Fighter *f,float maxSpeed,float dt)
     if(f->invincible>0) f->invincible-=dt;
     f->anim+=dt*(speed>20?10:4);
     f->frame=((int)f->anim)%8;
-}
-
-static void UpdatePlayer(float dt){
-    if(player.dead)
-    {
-        Physics(&player,130,dt);
-        return;
-    }
-    Vector2 input={(IsKeyDown(KEY_D)||IsKeyDown(KEY_RIGHT))-(IsKeyDown(KEY_A)||IsKeyDown(KEY_LEFT)),(IsKeyDown(KEY_S)||IsKeyDown(KEY_DOWN))-(IsKeyDown(KEY_W)||IsKeyDown(KEY_UP))};
-    if(player.hit<=0)Move(&player,input,470,dt);
-    if(IsKeyPressed(KEY_SPACE)||IsKeyPressed(KEY_Z))StartAttack(&player,.34f,.52f);
-    if(player.swing>0&&!player.attackLanded&&player.swing<=.18f)
-    {
-        for(int i=0;i<enemyCount;i++)
-        {
-           if(bossBattle)
-           {
-             Damage(&player,&enemies[i], 94);
-           }
-           else
-           {
-             Damage(&player,&enemies[i], 82);
-           }
-        }
-        player.attackLanded=1;
-    }
-    Physics(&player,125,dt);
 }
 
 static void StartAttack(Fighter *f,float duration,float cooldown)
@@ -340,6 +316,33 @@ static void Damage(Fighter *a,Fighter *t,float range)
     }
 }
 
+static void UpdatePlayer(float dt){
+    if(player.dead)
+    {
+        Physics(&player,130,dt);
+        return;
+    }
+    Vector2 input={(IsKeyDown(KEY_D)||IsKeyDown(KEY_RIGHT))-(IsKeyDown(KEY_A)||IsKeyDown(KEY_LEFT)),(IsKeyDown(KEY_S)||IsKeyDown(KEY_DOWN))-(IsKeyDown(KEY_W)||IsKeyDown(KEY_UP))};
+    if(player.hit<=0)Move(&player,input,470,dt);
+    if(IsKeyPressed(KEY_SPACE)||IsKeyPressed(KEY_Z))StartAttack(&player,.34f,.52f);
+    if(player.swing>0&&!player.attackLanded&&player.swing<=.18f)
+    {
+        for(int i=0;i<enemyCount;i++)
+        {
+           if(bossBattle)
+           {
+             Damage(&player,&enemies[i], 94);
+           }
+           else
+           {
+             Damage(&player,&enemies[i], 82);
+           }
+        }
+        player.attackLanded=1;
+    }
+    Physics(&player,125,dt);
+}
+
 static void SeparateAll(void)
 {
     for(int i=0;i<enemyCount;i++)
@@ -367,8 +370,8 @@ static void SeparateAll(void)
             if(l>.01f&&l<m)
             {
                 float p=(m-l)/2;d.x/=l;d.y/=l;
-                enemies[i].pos.x-=d.x*p;e
-                nemies[i].pos.y-=d.y*p;
+                enemies[i].pos.x-=d.x*p;
+                enemies[i].pos.y-=d.y*p;
                 enemies[j].pos.x+=d.x*p;
                 enemies[j].pos.y+=d.y*p;
             }
@@ -605,7 +608,7 @@ void InitBattleSystem(int chapter)
     introTimer=1.1f;
     bossSpecialTimer=2.5f;
     bossCastTime=0;
-    for(int i=0; i<Max_Fireballs; i++)
+    for(int i=0; i<MAX_FIREBALLS; i++)
     {
         fireballs[i].active=0;
     }
@@ -671,7 +674,7 @@ void InitBattleSystem(int chapter)
             enemies[i].think=i*.12f;
         }
     }
-    state=Battle;
+    state=FIGHTING;
 }
 
 static void DrawRegular(const Fighter *f,Texture2D tex,float size,bool enemyActor)
@@ -747,8 +750,8 @@ void DrawBattleSystem(void){
     float ox, oy;
     if(shake>0)
     {
-        ox=GetRandomValue((int)-shake,(int)shake).
-        oy=GetRandomValue((int)-shake,(int)shake).
+        ox=GetRandomValue((int)-shake,(int)shake);
+        oy=GetRandomValue((int)-shake,(int)shake);
     }
     else
     {
