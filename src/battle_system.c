@@ -89,7 +89,16 @@ static float Dist(Vector2 a,Vector2 b)
 static Vector2 Norm(Vector2 v)
 {
     float l=Len(v);
-    return l>.001f?(Vector2){v.x/l,v.y/l}:(Vector2){0,0};
+        if(l>0.001f)
+        {
+            Vector2 result={v.x/l,v.y/l};
+            return result;
+        }
+    else 
+    {
+        Vector2 result = { 0.0f, 0.0f };
+        return result;
+    }
 }
 static const char *Existing(const char *name)
 {
@@ -145,7 +154,17 @@ static Texture2D LoadDarkSheet(const char *name)
 static void LoadActors(void)
 {
     if(actorsLoaded)return;
-    heroTexture=LoadTexture(Existing(FileExists("hero_sheet.png")||FileExists("src/hero_sheet.png")?"hero_sheet.png":"Soldier_Walk.png"));
+    const char* heroPath = "Soldier_Walk.png"; // Default fallback
+
+    if (FileExists("hero_sheet.png")) 
+    {
+        heroPath = "hero_sheet.png";
+    } 
+    else if (FileExists("src/hero_sheet.png")) 
+    {
+        heroPath = "src/hero_sheet.png";
+    }
+    Texture2D heroTexture = LoadTexture(heroPath);
     bossTexture=LoadBossTexture();
     actorsLoaded=true;
 }
@@ -154,7 +173,15 @@ static void LoadChapterEnemy(int chapter)
 {
     if(enemyTexture.id) UnloadTexture(enemyTexture);
     enemyTexture=(Texture2D){0};
-    int enemyChapter=chapter>=1&&chapter<=5?chapter:5;
+    int enemyChapter
+    if(chapter>=1&&chapter<=5)
+    {
+        enemyChapter=chapter;
+    }
+    else
+    {
+        enemyChapter=5;
+    }
     char name[32];
     snprintf(name,sizeof(name),"enemy_ch%d.png",enemyChapter);
     enemyTexture=LoadDarkSheet(name);
@@ -162,8 +189,16 @@ static void LoadChapterEnemy(int chapter)
     {
         enemyTexture=LoadTexture(Existing("enemy_sheet.png"));
     }
-    enemySourceY=enemyTexture.height>300?300.0f:0.0f;
-    enemySourceH=enemyTexture.height>300?270.0f:(float)enemyTexture.height;
+    if(enemyTexture.height>300)
+    {
+        enemySourceY=300.0f;
+        enemySourceH=270.0f;
+    }
+    else
+    {
+        enemySourceY=0.0f;
+        enemySourceH=(float)enemyTexture.height;
+    }
 }
 
 static void LoadChapterMap(int chapter)
@@ -209,17 +244,23 @@ static void SpawnParticles(Vector2 pos,Color color,int count)
         Particle *p=&particles[particleCount++];
         p->pos=pos;
         p->vel=(Vector2){cosf(a)*s,sinf(a)*s};
-        p->life=GetRandomValue(20,50)/60.0f;p->color=color;
+        p->life=GetRandomValue(20,50)/60.0f;
+        p->color=color;
     }
 }
 
 static void Move(Fighter *f,Vector2 direction,float accel,float dt)
 {
-    Vector2 n=Norm(direction);f->vel.x+=n.x*accel*dt;
+    Vector2 n=Norm(direction);
+    f->vel.x+=n.x*accel*dt;
     f->vel.y+=n.y*accel*dt;
     if(n.x!=0)
     {
-        f->face=n.x>0?1:-1;
+        f->face=1;
+    }
+    else
+    {
+        f->face=-1;
     }
 }
 static void Physics(Fighter *f,float maxSpeed,float dt)
@@ -230,7 +271,9 @@ static void Physics(Fighter *f,float maxSpeed,float dt)
         f->vel.x=f->vel.x/speed*maxSpeed;
         f->vel.y=f->vel.y/speed*maxSpeed;
     }
-    f->pos.x+=f->vel.x*dt;f->pos.y+=f->vel.y*dt;float damp=powf(f->dash>0?.90f:.72f,dt*60);
+    f->pos.x+=f->vel.x*dt;
+    f->pos.y+=f->vel.y*dt;
+    float damp=powf(f->dash>0?.90f:.72f,dt*60);
     f->vel.x*=damp;f->vel.y*=damp;
     f->pos.x=Clampf(f->pos.x,55,905);
     f->pos.y=Clampf(f->pos.y,115,655);
@@ -240,7 +283,8 @@ static void Physics(Fighter *f,float maxSpeed,float dt)
     if(f->invincible>0) f->invincible-=dt;
     if(f->dash>0) f->dash-=dt;
     if(f->dashCooldown>0) f->dashCooldown-=dt;
-    f->anim+=dt*(speed>20?10:4);f->frame=((int)f->anim)%8;
+    f->anim+=dt*(speed>20?10:4);
+    f->frame=((int)f->anim)%8;
 }
 
 static void UpdatePlayer(float dt){
@@ -257,9 +301,16 @@ static void UpdatePlayer(float dt){
     {
         for(int i=0;i<enemyCount;i++)
         {
-            Damage(&player,&enemies[i],bossBattle?94:82);
+           if(bossBattle)
+           {
+             Damage(&player,&enemies[i], 94);
+           }
+           else
+           {
+             Damage(&player,&enemies[i], 82);
+           }
         }
-        player.attackLanded=true;
+        player.attackLanded=1;
     }
     Physics(&player,player.dash>0?260:125,dt);
 }
@@ -270,7 +321,7 @@ static void StartAttack(Fighter *f,float duration,float cooldown)
     {
         f->swing=duration;
         f->cooldown=cooldown;
-        f->attackLanded=false;
+        f->attackLanded=0;
     }
 }
 static void Damage(Fighter *a,Fighter *t,float range)
