@@ -88,6 +88,117 @@ static const char *Existing(const char *name)
     return FileExists(rooted)?rooted:name;
 }
 
+static Texture2D LoadBossTexture(void)
+{
+    Image image=LoadImage(Existing("boss_sheet.png"));
+    if(image.data)
+    {
+        Color *pixels=LoadImageColors(image);
+        int count=image.width*image.height;
+        for(int i=0;i<count;i++)
+        {
+            if(pixels[i].r<18&&pixels[i].g<18&&pixels[i].b<18)
+            {
+                pixels[i].a=0;
+            }
+        }
+        Image transparent={pixels,image.width,image.height,1,PIXELFORMAT_UNCOMPRESSED_R8G8B8A8};
+        Texture2D result=LoadTextureFromImage(transparent);
+        UnloadImageColors(pixels);
+        UnloadImage(image);
+        return result;
+    }
+    return (Texture2D){0};
+}
+
+static Texture2D LoadDarkSheet(const char *name)
+{
+    Image image=LoadImage(Existing(name));
+    if(!image.data) return (Texture2D){0};
+    Color *pixels=LoadImageColors(image);
+    int count=image.width*image.height;
+    for(int i=0;i<count;i++)
+    {
+        if(pixels[i].r<18&&pixels[i].g<18&&pixels[i].b<18)pixels[i].a=0;
+    }
+    Image transparent={pixels,image.width,image.height,1,PIXELFORMAT_UNCOMPRESSED_R8G8B8A8};
+    Texture2D result=LoadTextureFromImage(transparent);
+    UnloadImageColors(pixels);
+    UnloadImage(image);
+    return result;
+}
+
+static void LoadActors(void)
+{
+    if(actorsLoaded)return;
+    heroTexture=LoadTexture(Existing(FileExists("hero_sheet.png")||FileExists("src/hero_sheet.png")?"hero_sheet.png":"Soldier_Walk.png"));
+    bossTexture=LoadBossTexture();
+    actorsLoaded=true;
+}
+
+static void LoadChapterEnemy(int chapter)
+{
+    if(enemyTexture.id) UnloadTexture(enemyTexture);
+    enemyTexture=(Texture2D){0};
+    int enemyChapter=chapter>=1&&chapter<=5?chapter:5;
+    char name[32];
+    snprintf(name,sizeof(name),"enemy_ch%d.png",enemyChapter);
+    enemyTexture=LoadDarkSheet(name);
+    if(enemyTexture.id==0)
+    {
+        enemyTexture=LoadTexture(Existing("enemy_sheet.png"));
+    }
+    enemySourceY=enemyTexture.height>300?300.0f:0.0f;
+    enemySourceH=enemyTexture.height>300?270.0f:(float)enemyTexture.height;
+}
+
+static void LoadChapterMap(int chapter)
+{
+    if(mapTexture.id)UnloadTexture(mapTexture);
+    char name[40];
+    if(chapter>=1&&chapter<=5)
+    {
+        snprintf(name,sizeof(name),"ch%d.png",chapter);
+    }
+    else if(chapter==6)
+    {
+        snprintf(name,sizeof(name),"ch_bad.png");
+    }
+    else
+    {
+        snprintf(name,sizeof(name),"ch_boss.png");
+    }
+    mapTexture=LoadTexture(Existing(name));
+    if(mapTexture.id==0)
+    {
+        mapTexture=LoadTexture(Existing("forest_map.png"));
+    }
+}
+
+static Fighter NewFighter(float x, float y, int hp, int power, int face, float radius)
+{
+    Fighter F={0};
+    F.pos=(x,y);
+    F.radius=radius;
+    F.maxhp=hp;
+    F.hp=hp;
+    F.face=face;
+    F.mode=Chase;
+    return f;
+}
+
+static void SpawnParticles(Vector2 pos,Color color,int count)
+{
+    for(int i=0;i<count&&particleCount<MAX_PARTICLES;i++)
+    {
+        float a=GetRandomValue(0,359)*PI_F/180,s=GetRandomValue(45,170);
+        Particle *p=&particles[particleCount++];
+        p->pos=pos;
+        p->vel=(Vector2){cosf(a)*s,sinf(a)*s};
+        p->life=GetRandomValue(20,50)/60.0f;p->color=color;
+    }
+}
+
 static void Move(Fighter *f,Vector2 direction,float accel,float dt)
 {
     Vector2 n=Norm(direction);f->vel.x+=n.x*accel*dt;
@@ -166,6 +277,37 @@ static void Damage(Fighter *a,Fighter *t,float range)
     }
 }
 
+static void SeparateAll(void)\
+{
+    for(int i=0;i<enemyCount;i++)
+    {
+        if(enemies[i].dead)continue;
+        Vector2 d={enemies[i].pos.x-player.pos.x,enemies[i].pos.y-player.pos.y};
+        float l=Len(d),m=enemies[i].radius+player.radius;
+        if(l>.01f&&l<m)
+        {
+            float p=(m-l)/2;d.x/=l;
+            d.y/=l;player.pos.x-=d.x*p;
+            player.pos.y-=d.y*p;enemies[i].pos.x+=d.x*p;
+            enemies[i].pos.y+=d.y*p;
+        }
+    }
+    for(int i=0;i<enemyCount;i++)
+    {
+        for(int j=i+1;j<enemyCount;j++)
+        {
+            if(enemies[i].dead||enemies[j].dead)continue;
+            Vector2 d={enemies[j].pos.x-enemies[i].pos.x,enemies[j].pos.y-enemies[i].pos.y};
+            float l=Len(d),m=enemies[i].radius+enemies[j].radius;
+            if(l>.01f&&l<m)
+            {
+                float p=(m-l)/2;d.x/=l;d.y/=l;
+                enemies[i].pos.x-=d.x*p;e
+                nemies[i].pos.y-=d.y*p;
+                enemies[j].pos.x+=d.x*p;
+                enemies[j].pos.y+=d.y*p;}}
+}
+
 static void UpdateEnemy(Fighter *e,int index,float dt)
 {
     if(e->dead)
@@ -207,30 +349,6 @@ static void UpdateEnemy(Fighter *e,int index,float dt)
         Physics(e,maxSpeed,dt);
     }
     else Physics(e,80,dt);
-}
-
-static Fighter NewFighter(float x, float y, int hp, int power, int face, float radius)
-{
-    Fighter F={0};
-    F.pos=(x,y);
-    F.radius=radius;
-    F.maxhp=hp;
-    F.hp=hp;
-    F.face=face;
-    F.mode=Chase;
-    return f;
-}
-
-static void SpawnParticles(Vector2 pos,Color color,int count)
-{
-    for(int i=0;i<count&&particleCount<MAX_PARTICLES;i++)
-    {
-        float a=GetRandomValue(0,359)*PI_F/180,s=GetRandomValue(45,170);
-        Particle *p=&particles[particleCount++];
-        p->pos=pos;
-        p->vel=(Vector2){cosf(a)*s,sinf(a)*s};
-        p->life=GetRandomValue(20,50)/60.0f;p->color=color;
-    }
 }
 
 void InitBattleSystem(int chapter)
