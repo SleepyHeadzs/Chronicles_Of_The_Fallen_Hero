@@ -166,6 +166,49 @@ static void Damage(Fighter *a,Fighter *t,float range)
     }
 }
 
+static void UpdateEnemy(Fighter *e,int index,float dt)
+{
+    if(e->dead)
+    {
+        Physics(e,95,dt);
+        return;
+    }
+    float distance=Dist(player.pos,e->pos);
+    e->think-=dt;
+    if(e->think<=0)
+    {
+        e->think=GetRandomValue(15,32)/60.0f;
+        if(e->hit>0)e->mode=RETREAT;
+        else if(player.swing>.15f&&distance<105&&GetRandomValue(0,99)<55)e->mode=STRAFE;
+        else if(distance<66)e->mode=GetRandomValue(0,99)<70?ATTACK:RETREAT;
+        else e->mode=CHASE;}
+        if(e->mode==CHASE)
+        {
+            Move(e,toward,accel,dt);
+            if(distance<82)StartAttack(e,.38f,.85f+index*.08f);
+        }
+        if(e->hit<=0)
+        {
+            Vector2 toward={player.pos.x-e->pos.x,player.pos.y-e->pos.y};
+            float accel=310+chapterNumber*8,maxSpeed=78+chapterNumber*3;
+            else if(e->mode==ATTACK)
+        {
+            Move(e,toward,accel*.3f,dt);
+            StartAttack(e,.38f,.85f+index*.08f);
+        }
+        else if(e->mode==RETREAT)Move(e,(Vector2){-toward.x,-toward.y},accel,dt);
+        else Move(e,(Vector2){-toward.y,toward.x},accel*1.15f,dt);
+        e->face=player.pos.x>=e->pos.x?1:-1;
+        if(e->swing>0&&!e->attackLanded&&e->swing<=.18f)
+        {
+            Damage(e,&player,72);
+            e->attackLanded=true;
+        }
+        Physics(e,maxSpeed,dt);
+    }
+    else Physics(e,80,dt);
+}
+
 static Fighter NewFighter(float x, float y, int hp, int power, int face, float radius)
 {
     Fighter F={0};
