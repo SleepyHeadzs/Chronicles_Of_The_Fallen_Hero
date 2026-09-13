@@ -581,7 +581,9 @@ void DrawPuzzleSystem(void)
 }
 
 int IsPuzzleFinished(void){
-    return puzzleState;
+    if(puzzleState==3) return 1;
+    if(puzzleState==4) return 2;
+    return 0;
 }
 
 int GetPuzzleScore(void){
