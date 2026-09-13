@@ -3,29 +3,29 @@
 #include "battle_system.h"
 #include <math.h>
 
-#define Arena_X 160.0f
-#define Arena_W 960.0f
-#define Arena_H 720.0f
-#define Max_Enemies 5
-#define Max_Fireballs 20
-#define Max_Particles 160
-#define PI 3.1415927f
+#define ARENA_X 160.0f
+#define ARENA_W 960.0f
+#define ARENA_H 720.0f
+#define MAX_ENEMIES 5
+#define MAX_PARTICLES 160
+#define MAX_FIREBALLS 20
+#define PI_F 3.14159265f
 
 typedef enum
 {
-    Battle,
-    Win,
-    Lost,
-    Confirmed
-    Failed_Confirmed
+   FIGHTING,
+   WON,
+   LOST,
+   CONFIRMED,
+   FAILED_CONFIRMED
 } BattleStates;
 
 typedef enum
 {
-    Chase,
-    Attack,
-    Back,
-    Side
+    CHASE,
+    ATTACK,
+    RETREAT,
+    STRAFE
 } AI;
 
 typedef struct
@@ -432,11 +432,11 @@ static void UpdateEnemy(Fighter *e,int index,float dt)
         e->think=GetRandomValue(15,32)/60.0f;
         if(e->hit>0)
         {
-            e->mode=Back;
+            e->mode=RETREAT;
         }
         else if(player.swing>.15f&&distance<105&&GetRandomValue(0,99)<55)
         {
-            e->mode=Side;
+            e->mode=STRAFE;
         }
         else if(distance<66)
         {
@@ -446,7 +446,7 @@ static void UpdateEnemy(Fighter *e,int index,float dt)
             }
             else
             {
-                e->mode=Back;
+                e->mode=RETREAT;
             }
         }
         else 
