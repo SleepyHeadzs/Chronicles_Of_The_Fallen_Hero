@@ -1,10 +1,11 @@
 #include "raylib.h"
 #include <stdio.h>
 #include "battle_system.h"
+#include <math.h>
 
-#define ArenaX 160.0f
-#define ArenaW 960.0f
-#define ArenaH 720.0f
+#define Arena_X 160.0f
+#define Arena_W 960.0f
+#define Arena_H 720.0f
 #define Max_Enemies 5
 #define Max_Fireballs 20
 #define Max_Particles 160
@@ -16,6 +17,7 @@ typedef enum
     Win,
     Lost,
     Confirmed
+    Failed_Confirmed
 } BattleStates;
 
 typedef enum
@@ -56,13 +58,25 @@ static Particle particles[MAX_PARTICLES];
 static Fireball fireballs[MAX_FIREBALLS];
 static Texture2D mapTexture,heroTexture,enemyTexture,bossTexture;
 static int actorsLoaded;
+static float enemySourceY,enemySourceH;
 static BattleState state;
 static float introTimer,shake,bossSpecialTimer,bossCastTime;
 static int bossBattle,badEndingBattle;
 
 static float Clampf(float v,float a,float b)
 {
-    return v<a?a:(v>b?b:v);
+    if (v < a) 
+    {
+        return a;
+    } 
+    else if (v > b) 
+    {
+        return b;
+    } 
+    else
+    {
+        return v;
+    }
 }
 static float Len(Vector2 v)
 {
