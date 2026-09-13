@@ -167,6 +167,108 @@ void InitBattleSystem(int chapter)
     state=Battle;
 }
 
+void DrawBattleSystem(void){
+    float ox, oy;
+    if(shake>0)
+    {
+        ox=GetRandomValue(int)-shake;
+        oy=GetRandomValue(int)-shake;
+    }
+    else
+    {
+        ox=0;
+        oy=0;
+    }
+    Fighter *drawOrder[MAX_ENEMIES+1];
+    int drawCount=0;
+    drawOrder[drawCount++]=&player;
+    for(int i=0;i<enemyCount;i++)
+    {
+        if(!enemies[i].dead)drawOrder[drawCount++]=&enemies[i];
+    }
+    for(int i=1;i<drawCount;i++)
+    {
+        Fighter *item=drawOrder[i];
+        int j=i-1;
+        while(j>=0&&drawOrder[j]->pos.y>item->pos.y)
+        {
+            drawOrder[j+1]=drawOrder[j];j--;
+        }
+        drawOrder[j+1]=item;
+    }
+    for(int i=0;i<drawCount;i++)
+    {
+        if(drawOrder[i]==&player)
+        DrawRegular(&player,heroTexture,150,false);
+        else if(bossBattle)
+        {
+            DrawBoss(drawOrder[i]);
+        }
+        else 
+        {
+            DrawRegular(drawOrder[i],enemyTexture,132,true);
+        }
+    }
+    for(int i=0;i<MAX_FIREBALLS;i++)
+    {
+        if(fireballs[i].active)
+        {
+            DrawCircle((int)(ARENA_X+fireballs[i].pos.x),(int)fireballs[i].pos.y,15,(Color){255,90,20,100});
+            DrawCircle((int)(ARENA_X+fireballs[i].pos.x),(int)fireballs[i].pos.y,8,ORANGE);
+        }
+    }
+    for(int i=0;i<particleCount;i++)
+    {
+        Color c=particles[i].color;
+        c.a=(unsigned char)Clampf(particles[i].life*500,0,255);
+        DrawRectangle((int)(ARENA_X+particles[i].pos.x),(int)particles[i].pos.y,4,4,c);
+    }
+    DrawBar(28,45,350,player.hp,player.maxHp,(Color){65,181,96,255},"TONOY",false);
+    int totalHp=0,totalMax=0,alive=0;
+    for(int i=0;i<enemyCount;i++)
+    {
+        totalHp+=enemies[i].hp;totalMax+=enemies[i].maxHp;
+        if(!enemies[i].dead)
+        {
+            alive++;
+        }
+    }
+    char label[80];
+    if(bossBattle)
+    {
+        snprintf(label,sizeof(label),"REVENGE BOSS - PHASE %d",enemies[0].hp<enemies[0].maxHp/2?2:1);
+    }
+    else if(badEndingBattle)
+    {
+        snprintf(label,sizeof(label),"FINAL DUEL");
+    }
+    else 
+    {
+        snprintf(label,sizeof(label),"CHAPTER %d - ENEMIES %d/%d",chapterNumber,alive,enemyCount);
+    }
+    DrawBar(902,45,350,totalHp,totalMax,bossBattle?(Color){238,112,30,255}:(Color){200,68,81,255},label,true);
+    DrawText("WASD / ARROWS  Move",22,650,14,RAYWHITE);
+    DrawText("SPACE / Z  Sword",22,672,14,RAYWHITE);
+    DrawText("SHIFT / X  Dash",22,694,14,RAYWHITE);
+    if(introTimer>0)
+    {
+        DrawRectangle(465,300,350,82,(Color){3,12,9,225});
+        DrawRectangleLines(465,300,350,82,GOLD);
+        const char *start=bossBattle?"BOSS FIGHT":badEndingBattle?"FINAL DUEL":"FIGHT!";
+        int tw=MeasureText(start,38);
+        DrawText(start,640-tw/2,324,38,(Color){243,223,163,255});
+    }
+    if(state==WON||state==LOST)
+    {
+        Color c=state==WON?GREEN:RED;
+        const char *title=state==WON?"VICTORY":"DEFEATED",*hint=state==WON?"Press ENTER to continue":"Press ENTER to attempt the quiz";
+        DrawRectangle(0,0,1280,720,(Color){0,0,0,180});
+        int tw=MeasureText(title,64);
+        DrawText(title,640-tw/2,275,64,c);
+        tw=MeasureText(hint,24);DrawText(hint,640-tw/2,370,24,WHITE);
+    }
+}
+
 int IsBattleFinished(void)
 {
 
