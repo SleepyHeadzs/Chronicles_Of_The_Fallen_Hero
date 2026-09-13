@@ -2,14 +2,14 @@
 #include "dialogue.h"
 #include "dialogue_style.h"
 #include <string.h>
-
+//4 inputs
 typedef struct{
     const char *title;
     const char *speaker;
     const char *text;
     const char *image;
 }DialogueLine;
-
+//Dialogues
 static DialogueLine lines[]={
     {"THE FORGOTTEN OATH", "Chronicles of the Fallen Throne", "", "scene_door.png"},
     {"", "PROLOGUE — The Last Name on the Door", "Location: Kingdom of Valdris — Present Day", "scene_door.png"},
@@ -29,18 +29,18 @@ static DialogueLine lines[]={
     {"PROLOGUE — The Last Name on the Door", "Location: Kingdom of Valdris — Present Day", "--THE CHRONICLES OF THE FALLEN THRONE--", "scene_door.png"},
     {"PROLOGUE — The Last Name on the Door", "Location: Kingdom of Valdris — Present Day", "The Journey Begins with us. 3 Charecters, 5 Chapters...", "scene_door.png"},
 };
-
+//All about lines
 static int total = 17;
 static int current = 0;
 static bool finished = false;
 static const char *currentTitle = "";
-
+//For Image
 #define MAX_TEXTURES 16
 static Texture2D textureCache[MAX_TEXTURES];
 static const char *textureNames[MAX_TEXTURES];
 static int textureCount = 0;
 static Texture2D currentBg;
-
+//Image placement
 static Texture2D GetTexture(const char *name){
     if(name[0] == '\0') return (Texture2D){0};
     for(int i=0; i<textureCount; i++){
@@ -51,7 +51,7 @@ static Texture2D GetTexture(const char *name){
     textureCount++;
     return textureCache[textureCount-1];
 }
-
+//Text Placement
 static void DrawWrapped(const char *text, int x, int y, int maxWidth, int fontSize, Color color){
     char buffer[1024];
     int lineY = y;
@@ -79,14 +79,14 @@ static void DrawWrapped(const char *text, int x, int y, int maxWidth, int fontSi
     }
     if(lineStart < len) DrawText(text+lineStart, x, lineY, fontSize, color);
 }
-
+//Start
 void InitDialogue(void){
     current = 0;
     finished = false;
     currentTitle = lines[0].title;
     currentBg = GetTexture(lines[0].image);
 }
-
+//Dialogue Update
 void UpdateDialogue(void){
     if(DialogueSkipClicked()){
         finished = true;
@@ -98,11 +98,12 @@ void UpdateDialogue(void){
             if(lines[current].title[0] != '\0') currentTitle = lines[current].title;
             currentBg = GetTexture(lines[current].image);
         }
-        else
+        else{
             finished = true;
+        }
     }
 }
-
+//Dialogue Show
 void DrawDialogueBox(void){
     DrawTexture(currentBg, 0, 0, WHITE);
 
@@ -111,13 +112,12 @@ void DrawDialogueBox(void){
     DrawText(lines[current].speaker, 70, 515, 26, DIALOGUE_SPEAKER_COLOR);
     DrawWrapped(lines[current].text, 70, 550, 1140, 22, DIALOGUE_TEXT_COLOR);
     DrawDialogueSkipButton();
-
 }
-
+//Finish
 int IsDialogueFinished(void){
     return finished;
 }
-
+//Closing
 void CloseDialogue(void){
     for(int i=0; i<textureCount; i++) UnloadTexture(textureCache[i]);
 }
