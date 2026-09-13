@@ -62,9 +62,17 @@ static int bossBattle,badEndingBattle;
 
 static Fighter Fighter(float x, float y, int hp, int power, int face, float radius)
 {
-    Fighter f={0};
-    f
+    Fighter F={0};
+    F.pos=(x,y);
+    F.radius=radius;
+    F.maxhp=hp;
+    F.hp=hp;
+    F.face=face;
+    F.mode=Chase;
+    return f;
 }
+
+
 
 int IsBattleFinished(void)
 {
