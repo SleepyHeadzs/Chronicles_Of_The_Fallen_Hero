@@ -534,6 +534,65 @@ void InitBattleSystem(int chapter)
     state=Battle;
 }
 
+static void DrawRegular(const Fighter *f,Texture2D tex,float size,bool enemyActor)
+{
+    float x=ARENA_X+f->pos.x,y=f->pos.y;
+    DrawEllipse((int)x,(int)(y+19),24,8,(Color){0,0,0,100});
+    if(tex.id==0)
+    {
+        DrawCircle((int)x,(int)y,(int)f->radius,f==&player?BLUE:MAROON);
+        return;
+    }
+    int frame=f->swing>0?(int)Clampf(7-(f->swing/.38f)*7,0,7):f->frame;
+    float frameW=enemyActor?tex.width/8.0f:100.0f,sourceY=enemyActor?enemySourceY:0,sourceH=enemyActor?enemySourceH:100.0f;
+    float sx=f->face<0?(frame+1)*frameW:frame*frameW;
+    Rectangle src={sx,sourceY,frameW*f->face,sourceH};
+    Rectangle dst={x,y-31,size,size};Color tint=f->hit>0?(Color){255,145,145,255}:WHITE;
+    if(f->invincible>0&&((int)(f->invincible*30)%2)==0)tint.a=120;
+    DrawTexturePro(tex,src,dst,(Vector2){size/2,size/2},0,tint);
+}
+static void DrawBoss(const Fighter *b)
+{
+    float x=ARENA_X+b->pos.x,y=b->pos.y;
+    DrawEllipse((int)x,(int)(y+34),47,15,(Color){0,0,0,130});
+    if(bossTexture.id==0)
+    {
+        DrawCircle((int)x,(int)y,48,ORANGE);
+        return;
+    }
+    int frame;
+    if(b->dead)frame=7;
+    else if(bossCastTime>0)frame=bossCastTime>.28f?6:3;
+    else if(b->swing>0)
+    {
+        float progress=1.0f-b->swing/.48f;
+        frame=progress<.34f?4:(progress<.72f?5:6);
+    }
+    else frame=((int)(b->anim*1.2f))%4;
+    float cw=bossTexture.width/8.0f,sourceX=b->face<0?(frame+1)*cw:frame*cw;
+    Rectangle src={sourceX,300,(float)(cw*b->face),270};
+    Rectangle dst={x,y-64,190,210};
+    Color tint=b->hit>0?(Color){255,160,100,255}:WHITE;
+    DrawTexturePro(bossTexture,src,dst,(Vector2){95,105},0,tint);
+    if(b->hp<b->maxHp/2)
+    {
+        Color aura=(Color){255,95,20,80};
+        DrawRing((Vector2){x,y},48,58,0,360,24,aura);
+    }
+}
+
+static void DrawBar(int x,int y,int w,int value,int max,Color color,const char *label,bool right)
+{
+    DrawRectangle(x-3,y-3,w+6,23,(Color){4,12,10,235});
+    DrawRectangle(x,y,w,17,(Color){45,38,35,255});
+    int fill=(int)(w*(float)value/max);
+    DrawRectangle(right?x+w-fill:x,y,fill,17,color);
+    DrawRectangleLines(x,y,w,17,(Color){225,205,140,255});
+    int tw=MeasureText(label,14);
+    DrawText(label,right?x+w-tw:x,y-20,14,(Color){246,236,208,255});
+}
+
+
 void DrawBattleSystem(void){
     float ox, oy;
     if(shake>0)
@@ -647,5 +706,7 @@ void DrawBattleSystem(void){
 
 int IsBattleFinished(void)
 {
-
+    if(state==CONFIRMED)return 1;
+    if(state==FAILED_CONFIRMED)return -1;
+    return 0;
 }
