@@ -4,72 +4,83 @@
 
 typedef struct
 {
-    const char *question;
-    const char *options[4];
+    const char *question; //question points to a text string(read-only)
+    const char *options[4];  //array containing 4 pointers to strings(read-only)
     int correctAnswer;
 } QuizQuestion;
 
-static QuizQuestion set1_tech[] = {
+static QuizQuestion set1_tech[] = {         //an array of QuizQuestion structures
     {"What does 'HTTP' stand for?",
      {"HyperText Transfer Protocol",
       "High Tech Transfer Process",
       "Home Tool Transfer Program",
       "Hyperlink Text Transmission Protocol"},
      0},
+
     {"Which company developed Android before Google acquired it?",
      {"Apple Inc.",
       "Android Inc. (founded by Andy Rubin)",
       "Microsoft Mobile",
       "Nokia Corporation"},
      1},
+
     {"What is the name of the first electronic general-purpose computer, completed in 1945?",
      {"UNIVAC",
       "Colossus",
       "ENIAC",
       "IBM 701"},
      2},
+
     {"What does 'RAM' stand for?",
      {"Read And Modify",
       "Random Access Memory",
       "Rapid Action Module",
       "Remote Application Manager"},
      1},
+
     {"Which programming language is named after a type of coffee?",
      {"Python",
       "C++",
       "Java",
       "Ruby"},
      2},
+
     {"What is the term for a malicious program that disguises itself as legitimate software?",
      {"Virus",
       "Worm",
       "Trojan horse",
       "Spyware"},
      2},
+
     {"Who is credited as the co-founder of Apple alongside Steve Jobs?",
      {"Bill Gates",
       "Steve Wozniak",
       "Tim Cook",
       "Paul Allen"},
      1},
+
     {"What does 'URL' stand for?",
      {"Universal Resource Link",
       "Uniform Resource Locator",
       "Unified Reference Label",
       "User Requested Location"},
      1},
+
     {"Which social media platform was originally called 'The Facebook'?",
      {"Twitter",
       "Instagram",
       "Facebook",
       "MySpace"},
      2},
+
     {"What year was the World Wide Web made publicly available?",
      {"1989",
       "1990",
       "1991",
       "1993"},
-     2}};
+     2}
+    
+};
 
 static QuizQuestion set2_riddles1[] = {
     {"What has keys but can't open locks?",
@@ -131,7 +142,8 @@ static QuizQuestion set2_riddles1[] = {
       "9",
       "17",
       "0"},
-     1}};
+     1}
+};
 
 static QuizQuestion set3_riddles2[] = {
     {"What has a neck but no head?",
@@ -193,7 +205,8 @@ static QuizQuestion set3_riddles2[] = {
       "A needle",
       "A storm",
       "A potato"},
-     1}};
+     1}
+};
 
 static QuizQuestion set4_general[] = {
     {"What is the largest ocean on Earth?",
@@ -255,7 +268,8 @@ static QuizQuestion set4_general[] = {
       "Germany",
       "France",
       "Spain"},
-     2}};
+     2}
+};
 
 static QuizQuestion set5_maths[] = {
     {"If a hen and a half lays an egg and a half in a day and a half, how many eggs does one hen lay in one day?",
@@ -317,29 +331,29 @@ static QuizQuestion set5_maths[] = {
       "Six",
       "Four",
       "Ten"},
-     0}};
+     0}
+};
+//static = private
 
-static QuizQuestion *allSets[5] = {set1_tech, set2_riddles1, set3_riddles2, set4_general, set5_maths};
+static QuizQuestion *allSets[5] = {set1_tech, set2_riddles1, set3_riddles2, set4_general, set5_maths};  //i.e. allSets[0] = set1_tech...
 static int setSizes[5] = {10, 10, 10, 10, 10};
 
-static QuizQuestion *currentQuestions;
+static QuizQuestion *currentQuestions; //Which question-set player currently using
 static int currentSetSize;
-static int currentQuestion;
-static int selectedOption;
-static int puzzleState;
+static int currentQuestion; //which question the player is currently answering
+static int puzzleState;  //puzzleState = 0 -Playing, puzzleState = 1 -Complete, puzzleState = 2 -Failed
 static int lives;
 static int score;
-static float timer;
-static const float TIME_LIMIT = 15.0f;
-static int chapter;
+static int chapter;  //stores the current chapter number
 static int questionsPerChapter;
+static float wrongFlash;
 
 static void DrawWrapped(const char *text, int x, int y, int maxWidth, int fontSize, Color color)
 {
     int len = strlen(text);
     int lineStart = 0;
-    int lineY = y;
-    int lastSpace = -1;
+    int lineY = y;     //stores the current vertical position.
+    int lastSpace = -1;  //The function wants to break text at spaces, not in the middle of words.
 
     for (int i = 0; i <= len; i++)
     {
@@ -348,11 +362,11 @@ static void DrawWrapped(const char *text, int x, int y, int maxWidth, int fontSi
             int wordLen = i - lineStart;
             if (wordLen > 0)
             {
-                char word[256];
+                char word[256];  //temporary string
                 strncpy(word, text + lineStart, wordLen);
                 word[wordLen] = '\0';
 
-                char testLine[4096];
+                char testLine[4096];  //another temporary string
                 if (lineStart > 0 && lastSpace > 0)
                 {
                     int lineLen = lastSpace - lineStart + wordLen + 1;
@@ -364,7 +378,7 @@ static void DrawWrapped(const char *text, int x, int y, int maxWidth, int fontSi
                     strcpy(testLine, word);
                 }
 
-                if (MeasureText(testLine, fontSize) > maxWidth && lastSpace > lineStart)
+                if (MeasureText(testLine, fontSize) > maxWidth && lastSpace > lineStart)  //MeasureText() is a Raylib function -returns the width
                 {
                     int cut = lastSpace - lineStart;
                     char line[4096];
@@ -378,12 +392,12 @@ static void DrawWrapped(const char *text, int x, int y, int maxWidth, int fontSi
                     lineStart = lastSpace + 1;
                 }
             }
-            lastSpace = i;
+            lastSpace = i;  //keeps changing to the newest space.
         }
     }
     if (lineStart < len)
     {
-        DrawText(text + lineStart, x, lineY, fontSize, color);
+        DrawText(text + lineStart, x, lineY, fontSize, color); //draws that remaining part
     }
 }
 
