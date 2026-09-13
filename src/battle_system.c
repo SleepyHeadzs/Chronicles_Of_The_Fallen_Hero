@@ -305,7 +305,48 @@ static void SeparateAll(void)\
                 enemies[i].pos.x-=d.x*p;e
                 nemies[i].pos.y-=d.y*p;
                 enemies[j].pos.x+=d.x*p;
-                enemies[j].pos.y+=d.y*p;}}
+                enemies[j].pos.y+=d.y*p;
+            }
+        }
+    }
+}
+
+static void SpawnFireball(Vector2 origin,Vector2 target)
+{
+    for(int i=0;i<MAX_FIREBALLS;i++)
+    {
+        if(!fireballs[i].active)
+        {
+            Vector2 n=Norm((Vector2){target.x-origin.x,target.y-origin.y});
+            fireballs[i]=(Fireball){origin,{n.x*185,n.y*185},4.5f,12,true};
+            break;
+        }
+    }
+}
+
+static void UpdateFireballs(float dt)
+{
+    for(int i=0;i<MAX_FIREBALLS;i++)
+    {
+        Fireball *f=&fireballs[i];
+        if(!f->active)continue;
+        f->pos.x+=f->vel.x*dt;
+        f->pos.y+=f->vel.y*dt;
+        f->life-=dt;
+        if(Dist(f->pos,player.pos)<f->radius+player.radius&&player.invincible<=0)
+        {
+            player.hp-=22;player.hit=.22f;player.invincible=.45f;
+            SpawnParticles(player.pos,ORANGE,15);shake=9;f->active=false;
+            if(player.hp<=0)
+            {
+                player.hp=0;player.dead=true;
+            }
+        }
+        if(f->life<=0||f->pos.x<20||f->pos.x>940||f->pos.y<80||f->pos.y>700)
+        {
+            f->active=false;
+        }
+    }
 }
 
 static void UpdateEnemy(Fighter *e,int index,float dt)
@@ -349,6 +390,53 @@ static void UpdateEnemy(Fighter *e,int index,float dt)
         Physics(e,maxSpeed,dt);
     }
     else Physics(e,80,dt);
+}
+
+static void UpdateBoss(float dt){
+    Fighter *b=&enemies[0];
+    if(b->dead)
+    {
+        Physics(b,100,dt);
+        return;
+    }
+    float distance=Dist(player.pos,b->pos),phase=b->hp<b->maxHp/2?1.45f:1.0f;
+    Vector2 toward={player.pos.x-b->pos.x,player.pos.y-b->pos.y};
+    bossSpecialTimer-=dt;
+    if(bossSpecialTimer<=0)
+    {
+        SpawnFireball(b->pos,player.pos);
+        if(phase>1)
+        {
+            Vector2 side={player.pos.x+GetRandomValue(-150,150),player.pos.y+GetRandomValue(-120,120)};
+            SpawnFireball(b->pos,side);
+        }
+        bossSpecialTimer=(phase>1?1.15f:1.8f);
+        bossCastTime=.55f;b->mode=STRAFE;
+    }
+    if(b->hit<=0)
+    {
+        if(distance>105)Move(b,toward,360*phase,dt);
+        else if(b->cooldown<=0)
+        {
+            StartAttack(b,.48f,.9f/phase);
+        }
+        else 
+        {
+            Move(b,(Vector2){-toward.y,toward.x},270*phase,dt);
+        }
+    } 
+    b->face=player.pos.x>=b->pos.x?1:-1;
+    if(b->swing>0&&!b->attackLanded&&b->swing<=.23f)
+    {
+        Damage(b,&player,112);
+        b->attackLanded=true;
+    }
+    if(bossCastTime>0)
+    {
+        bossCastTime-=dt;
+    }
+    Physics(b,115*phase,dt);
+    UpdateFireballs(dt);
 }
 
 void InitBattleSystem(int chapter)
