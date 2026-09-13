@@ -40,7 +40,7 @@ typedef enum{
     STATE_ENDING_BAD,
     STATE_ENDING_GOOD,
     STATE_ENDING_SECRET,
-    STATE_THE_END,
+    STATE_THE_END
 }GameState;
 
 static GameState state;
