@@ -500,61 +500,45 @@ void DrawPuzzleSystem(void)
 
     if (puzzleState == 0 && currentQuestion < questionsPerChapter)
     {
-
         QuizQuestion *q = &currentQuestions[currentQuestion];
 
         DrawText("LIVES: ", 50, 90, 24, WHITE);
-
         for (int i = 0; i < 3; i++)
         {
-            Color heartColor = (i < lives) ? RED : DARKGRAY;
+            Color heartColor;
+            if (i < lives)
+                heartColor = RED;
+            else
+                heartColor = DARKGRAY;
             DrawText("<3", 140 + (i * 40), 90, 24, heartColor);
         }
 
-        DrawText(
-            TextFormat("SCORE: %d / %d", score, questionsPerChapter),
-            1000, 90, 24, GREEN);
+        DrawText(TextFormat("SCORE: %d / %d", score, questionsPerChapter), 1000, 90, 24, GREEN);
+        DrawText(TextFormat("QUESTION %d / %d", currentQuestion + 1, questionsPerChapter), 520, 90, 24, WHITE);
 
-        DrawText(
-            TextFormat("QUESTION %d / %d",
-                       currentQuestion + 1, questionsPerChapter),
-            520, 90, 24, WHITE);
-
-        DrawRectangle(100, 140, 1080, 25, DARKGRAY);
-
-        float timerPct = timer / TIME_LIMIT;
-
-        Color timerColor = (timerPct > 0.5f)
-                               ? GREEN
-                           : (timerPct > 0.25f)
-                               ? YELLOW
-                               : RED;
-
-        DrawRectangle(100, 140, 1080 * timerPct, 25, timerColor);
-
-        DrawText(TextFormat("%.1fs", timer), 615, 143, 20, BLACK);
+        if (wrongFlash > 0.0f)
+        {
+            DrawText("WRONG ANSWER - TRY THIS QUESTION AGAIN", 390, 150, 24, RED);
+        }
 
         DrawRectangle(80, 190, 1120, 140, (Color){25, 25, 45, 255});
         DrawRectangleLinesEx((Rectangle){80, 190, 1120, 140}, 3, GOLD);
         DrawWrapped(q->question, 120, 220, 1040, 26, WHITE);
 
         const char *labels[] = {"A", "B", "C", "D"};
+        Vector2 mouse = GetMousePosition();
         for (int i = 0; i < 4; i++)
         {
-            int y = 360 + (i * 85);
-            Color bgColor = (i == selectedOption) ? (Color){70, 70, 120, 255} : (Color){30, 30, 55, 255};
-            Color borderColor = (i == selectedOption) ? GOLD : DARKGRAY;
-
-            DrawRectangle(180, y, 920, 75, bgColor);
-            DrawRectangleLinesEx((Rectangle){180, y, 920, 75}, 3, borderColor);
-
-            DrawCircle(230, y + 37, 25, (i == selectedOption) ? GOLD : DARKGRAY);
-            DrawText(labels[i], 222, y + 28, 24, BLACK);
-
-            DrawText(q->options[i], 280, y + 22, 22, WHITE);
+            int y = 355 + (i * 75);
+            Rectangle answerArea = {210, (float)y, 860, 58};
+            Color textColor;
+            if (CheckCollisionPointRec(mouse, answerArea))
+                textColor = GOLD;
+            else
+                textColor = WHITE;
+            DrawText(TextFormat("%s.  %s", labels[i], q->options[i]), 220, y + 16, 22, textColor);
         }
-
-        DrawText("[UP/DOWN] Navigate  [ENTER] Select", 430, 710, 20, GRAY);
+        DrawText("Click an answer", 555, 680, 18, GRAY);
     }
 
     if (puzzleState == 1)
@@ -581,7 +565,7 @@ void DrawPuzzleSystem(void)
             }
         }
 
-        DrawText("Press ENTER to continue", 440, 550, 28, WHITE);
+        DrawText("Click anywhere to continue", 425, 550, 28, WHITE);
     }
 
     if (puzzleState == 2)
@@ -590,8 +574,9 @@ void DrawPuzzleSystem(void)
         DrawText("TRIAL FAILED", 430, 200, 60, RED);
         DrawText("You have lost all your lives.", 420, 300, 32, ORANGE);
         DrawText(TextFormat("Questions answered correctly: %d / %d", score, questionsPerChapter), 350, 370, 28, WHITE);
-        DrawText("The door remains closed...", 430, 450, 28, DARKGRAY);
-        DrawText("Press ENTER to retry", 460, 550, 28, WHITE);
+
+        DrawText("The trial is lost. You must fight to continue.", 330, 450, 28, ORANGE);
+        DrawText("Click anywhere to begin the fight", 370, 550, 28, WHITE);
     }
 }
 
