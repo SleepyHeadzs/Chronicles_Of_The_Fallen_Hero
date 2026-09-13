@@ -18,7 +18,7 @@ typedef enum
    LOST,
    CONFIRMED,
    FAILED_CONFIRMED
-} BattleStates;
+} BattleState;
 
 typedef enum
 {
@@ -47,7 +47,7 @@ typedef struct
 
 typedef struct
 {
-    Vector2 pos vel;
+    Vector2 pos, vel;
     float life, radius;
     int active;
 } Fireball;
@@ -173,7 +173,7 @@ static void LoadChapterEnemy(int chapter)
 {
     if(enemyTexture.id) UnloadTexture(enemyTexture);
     enemyTexture=(Texture2D){0};
-    int enemyChapter
+    int enemyChapter;
     if(chapter>=1&&chapter<=5)
     {
         enemyChapter=chapter;
@@ -226,13 +226,14 @@ static void LoadChapterMap(int chapter)
 
 static Fighter NewFighter(float x, float y, int hp, int power, int face, float radius)
 {
-    Fighter F={0};
-    F.pos=(x,y);
-    F.radius=radius;
-    F.maxhp=hp;
-    F.hp=hp;
-    F.face=face;
-    F.mode=Chase;
+    Fighter f={0};
+    f.pos=(x,y);
+    f.radius=radius;
+    f.maxhp=hp;
+    f.hp=hp;
+    f.power=power;
+    f.face=face;
+    f.mode=CHASE;
     return f;
 }
 
@@ -418,82 +419,47 @@ static void UpdateFireballs(float dt)
     }
 }
 
+
 static void UpdateEnemy(Fighter *e,int index,float dt)
 {
     if(e->dead)
     {
-        Physics(e,95,dt);
-        return;
+        Physics(e,95,dt);return;
     }
     float distance=Dist(player.pos,e->pos);
     e->think-=dt;
     if(e->think<=0)
     {
         e->think=GetRandomValue(15,32)/60.0f;
-        if(e->hit>0)
-        {
-            e->mode=RETREAT;
-        }
-        else if(player.swing>.15f&&distance<105&&GetRandomValue(0,99)<55)
-        {
-            e->mode=STRAFE;
-        }
-        else if(distance<66)
-        {
-            if(GetRandomValue(0,99)<70)
-            {
-                e->mode=Attack;
-            }
-            else
-            {
-                e->mode=RETREAT;
-            }
-        }
-        else 
-        {
-            e->mode=CHASE;
-        }
+        if(e->hit>0)e->mode=RETREAT;
+        else if(player.swing>.15f&&distance<105&&GetRandomValue(0,99)<55)e->mode=STRAFE;
+        else if(distance<66)e->mode=GetRandomValue(0,99)<70?ATTACK:RETREAT;
+        else e->mode=CHASE;
+    }
+    if(e->hit<=0)
+    {
+        Vector2 toward={player.pos.x-e->pos.x,player.pos.y-e->pos.y};
+        float accel=310+chapterNumber*8,maxSpeed=78+chapterNumber*3;
         if(e->mode==CHASE)
         {
             Move(e,toward,accel,dt);
-            if(distance<82)
-            {
-                StartAttack(e,.38f,.85f+index*.08f);
-            }
+            if(distance<82)StartAttack(e,.38f,.85f+index*.08f);
         }
-        if(e->hit<=0)
+        else if(e->mode==ATTACK)
         {
-            Vector2 toward={player.pos.x-e->pos.x,player.pos.y-e->pos.y};
-            float accel=310+chapterNumber*8,maxSpeed=78+chapterNumber*3;
-            else if(e->mode==ATTACK)
-            {
-                Move(e,toward,accel*.3f,dt);
-                StartAttack(e,.38f,.85f+index*.08f);
-            }
-        else if(e->mode==RETREAT)
-        {
-            Move(e,(Vector2){-toward.x,-toward.y},accel,dt);
+            Move(e,toward,accel*.3f,dt);
+            StartAttack(e,.38f,.85f+index*.08f);
         }
-        else 
-        {
-            Move(e,(Vector2){-toward.y,toward.x},accel*1.15f,dt);
-        }
-        if(player.pos.x >= e->pos.x)
-        {
-            e->face=1;
-        }
-        else
-        {
-            e->face=-1;
-        }
+        else if(e->mode==RETREAT)Move(e,(Vector2){-toward.x,-toward.y},accel,dt);
+        else Move(e,(Vector2){-toward.y,toward.x},accel*1.15f,dt);
+        e->face=player.pos.x>=e->pos.x?1:-1;
         if(e->swing>0&&!e->attackLanded&&e->swing<=.18f)
         {
             Damage(e,&player,72);
             e->attackLanded=true;
         }
         Physics(e,maxSpeed,dt);
-    }
-    else Physics(e,80,dt);
+    }else Physics(e,80,dt);
 }
 
 static void UpdateBoss(float dt){
@@ -630,6 +596,10 @@ void InitBattleSystem(int chapter)
     }
     LoadActors();
     LoadChapterMap(chapter);
+    if(!bossBattle)
+    {
+        LoadChapterEnemy(chapter);
+    }
     particleCount=0;
     shake=0;
     introTimer=1.1f;
@@ -637,7 +607,7 @@ void InitBattleSystem(int chapter)
     bossCastTime=0;
     for(int i=0; i<Max_Fireballs; i++)
     {
-        fireballs[i].active=1;
+        fireballs[i].active=0;
     }
     int heroHp;
     if(chapter<=1)
@@ -777,8 +747,8 @@ void DrawBattleSystem(void){
     float ox, oy;
     if(shake>0)
     {
-        ox=GetRandomValue(int)-shake;
-        oy=GetRandomValue(int)-shake;
+        ox=GetRandomValue((int)-shake,(int)shake).
+        oy=GetRandomValue((int)-shake,(int)shake).
     }
     else
     {
