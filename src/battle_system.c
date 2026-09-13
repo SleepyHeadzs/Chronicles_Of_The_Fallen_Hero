@@ -60,6 +60,85 @@ static BattleState state;
 static float introTimer,shake,bossSpecialTimer,bossCastTime;
 static int bossBattle,badEndingBattle;
 
+static float Clampf(float v,float a,float b)
+{
+    return v<a?a:(v>b?b:v);
+}
+static float Len(Vector2 v)
+{
+    return sqrtf(v.x*v.x+v.y*v.y);
+}
+static float Dist(Vector2 a,Vector2 b)
+{
+    return Len((Vector2){a.x-b.x,a.y-b.y});
+}
+static Vector2 Norm(Vector2 v)
+{
+    float l=Len(v);
+    return l>.001f?(Vector2){v.x/l,v.y/l}:(Vector2){0,0};
+}
+static const char *Existing(const char *name)
+{
+    static char rooted[128];
+    if(FileExists(name))
+    {
+        return name;
+    }
+    snprintf(rooted,sizeof(rooted),"src/%s",name);
+    return FileExists(rooted)?rooted:name;
+}
+
+static void Move(Fighter *f,Vector2 direction,float accel,float dt)
+{
+    Vector2 n=Norm(direction);f->vel.x+=n.x*accel*dt;
+    f->vel.y+=n.y*accel*dt;
+    if(n.x!=0)
+    {
+        f->face=n.x>0?1:-1;
+    }
+}
+static void Physics(Fighter *f,float maxSpeed,float dt)
+{
+    float speed=Len(f->vel);
+    if(speed>maxSpeed)
+    {
+        f->vel.x=f->vel.x/speed*maxSpeed;
+        f->vel.y=f->vel.y/speed*maxSpeed;
+    }
+    f->pos.x+=f->vel.x*dt;f->pos.y+=f->vel.y*dt;float damp=powf(f->dash>0?.90f:.72f,dt*60);
+    f->vel.x*=damp;f->vel.y*=damp;
+    f->pos.x=Clampf(f->pos.x,55,905);
+    f->pos.y=Clampf(f->pos.y,115,655);
+    if(f->swing>0)f->swing-=dt;
+    if(f->cooldown>0) f->cooldown-=dt;
+    if(f->hit>0) f->hit-=dt;
+    if(f->invincible>0) f->invincible-=dt;
+    if(f->dash>0) f->dash-=dt;
+    if(f->dashCooldown>0) f->dashCooldown-=dt;
+    f->anim+=dt*(speed>20?10:4);f->frame=((int)f->anim)%8;
+}
+
+static void UpdatePlayer(float dt){
+    if(player.dead)
+    {
+        Physics(&player,130,dt);
+        return;
+    }
+    Vector2 input={(IsKeyDown(KEY_D)||IsKeyDown(KEY_RIGHT))-(IsKeyDown(KEY_A)||IsKeyDown(KEY_LEFT)),(IsKeyDown(KEY_S)||IsKeyDown(KEY_DOWN))-(IsKeyDown(KEY_W)||IsKeyDown(KEY_UP))};
+    if(player.hit<=0)Move(&player,input,470,dt);
+    if((IsKeyPressed(KEY_LEFT_SHIFT)||IsKeyPressed(KEY_RIGHT_SHIFT)||IsKeyPressed(KEY_X))&&player.dashCooldown<=0&&Len(input)>0){Vector2 n=Norm(input);player.vel=(Vector2){n.x*260,n.y*260};player.dash=.15f;player.dashCooldown=1.15f;player.invincible=.2f;}
+    if(IsKeyPressed(KEY_SPACE)||IsKeyPressed(KEY_Z))StartAttack(&player,.34f,.52f);
+    if(player.swing>0&&!player.attackLanded&&player.swing<=.18f)
+    {
+        for(int i=0;i<enemyCount;i++)
+        {
+            Damage(&player,&enemies[i],bossBattle?94:82);
+        }
+        player.attackLanded=true;
+    }
+    Physics(&player,player.dash>0?260:125,dt);
+}
+
 static Fighter NewFighter(float x, float y, int hp, int power, int face, float radius)
 {
     Fighter F={0};
@@ -178,6 +257,15 @@ void DrawBattleSystem(void){
     {
         ox=0;
         oy=0;
+    }
+    if(mapTexture.id)
+    {
+        DrawTexturePro(mapTexture,(Rectangle){0,0,(float)mapTexture.width,(float)mapTexture.height},(Rectangle){ox,oy,1280,720},(Vector2){0,0},0,WHITE);
+    }
+    else 
+    {
+        DrawRectangle(0,0,1280,720,DARKGREEN);
+        DrawRectangle(0,0,1280,720,(Color){0,8,4,45});
     }
     Fighter *drawOrder[MAX_ENEMIES+1];
     int drawCount=0;
