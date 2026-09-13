@@ -1,17 +1,17 @@
 #include "raylib.h"
 #include "intro.h"
 
-typedef enum {
+typedef enum{
     MENU_NEW_GAME,
     MENU_RESUME,
     MENU_QUIT,
     MENU_COUNT
-} MenuOption;
-
+}MenuOption;
+//3 Options
 static int selected;
 static bool finished;
 static int result;
-
+//Initialize
 void InitIntro(void){
     selected = -1;
     finished = false;
@@ -29,10 +29,10 @@ void UpdateIntro(void){
     for(int i=0; i<MENU_COUNT; i++){
         Rectangle btn = {490, (float)(startY + i*gap), 300, 48};
 
-        if(CheckCollisionPointRec(mouse, btn)){
+        if(CheckCollisionPointRec(mouse, btn)){ //mouse posn detect
             selected = i;
 
-            if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
+            if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){ //check
                 if(i == MENU_NEW_GAME){
                     finished = true;
                     result = 1;
@@ -49,7 +49,7 @@ void UpdateIntro(void){
         }
     }
 }
-
+//background, buttons
 void DrawIntro(void){
     static Texture2D background = {0};
 
@@ -94,20 +94,9 @@ void DrawIntro(void){
             textColor = RAYWHITE;
         }
 
-        DrawRectangleRounded(
-            (Rectangle){490, (float)y, 300, 48},
-            0.15f,
-            6,
-            buttonColor
-        );
+        DrawRectangleRounded((Rectangle){490, (float)y, 300, 48}, 0.15f, 6, buttonColor);
 
-        DrawRectangleRoundedLinesEx(
-            (Rectangle){490, (float)y, 300, 48},
-            0.15f,
-            6,
-            borderWidth,
-            borderColor
-        );
+        DrawRectangleRoundedLinesEx((Rectangle){490, (float)y, 300, 48}, 0.15f, 6, borderWidth, borderColor);
 
         int textX = 640 - MeasureText(labels[i], 28)/2;
 
@@ -116,8 +105,6 @@ void DrawIntro(void){
 }
 
 int IsIntroFinished(void){
-    if(!finished)
-        return 0;
-    else
-        return result;
+    if(!finished) return 0;
+    else return result;
 }
