@@ -352,7 +352,7 @@ static void DrawWrapped(const char *text, int x, int y, int maxWidth, int fontSi
     int len = strlen(text);
     int lineStart = 0;
     int lineY = y;     
-    int lastSpace = -1;  
+    int lastSpace = -1;  //haven't encountered a space yet
 
     for (int i = 0; i <= len; i++)
     {
@@ -365,11 +365,11 @@ static void DrawWrapped(const char *text, int x, int y, int maxWidth, int fontSi
                 strncpy(word, text + lineStart, wordLen);
                 word[wordLen] = '\0';
 
-                char testLine[4096];  
+                char testLine[4096];
                 if (lineStart > 0 && lastSpace > 0)
                 {
                     int lineLen = lastSpace - lineStart + wordLen + 1;
-                    strncpy(testLine, text + lineStart, lineLen);
+                    strncpy(testLine, text + lineStart, lineLen); 
                     testLine[lineLen] = '\0';
                 }
                 else
@@ -385,34 +385,35 @@ static void DrawWrapped(const char *text, int x, int y, int maxWidth, int fontSi
                     strncpy(line, text + lineStart, cut);
                     line[cut] = '\0';
 
-                    DrawText(line, x, lineY, fontSize, color);
+                    DrawText(line, x, lineY, fontSize, color); //line becomes visible on screen.
 
-                    lineY += fontSize + 8;
+                    lineY += fontSize + 8; //+8 gives some extra spacing between lines.
                     lineStart = lastSpace + 1;
                 }
             }
-            lastSpace = i;
+            lastSpace = i; //remember its last position
         }
     }
     if (lineStart < len)
     {
-        DrawText(text + lineStart, x, lineY, fontSize, color); 
+        DrawText(text + lineStart, x, lineY, fontSize, color); //draws that remaining portion.
     }
 }
 
+//Initialize puzzle for each chapter
 void InitPuzzleSystem(int ch)
 {
     chapter = ch;
 
-    int setIndex = (ch - 1) % 5;
+    int setIndex = (ch - 1) % 5; //Selects which question-set to use
     currentQuestions = allSets[setIndex];
     currentSetSize = setSizes[setIndex];
 
     questionsPerChapter = 5;
-    if (questionsPerChapter > currentSetSize)
+    if (questionsPerChapter > currentSetSize)  //safety limit.
         questionsPerChapter = currentSetSize;
 
-    for (int i = currentSetSize - 1; i > 0; i--)
+    for (int i = currentSetSize - 1; i > 0; i--)  //shuffling
     {
         int j = GetRandomValue(0, i);
 
@@ -421,33 +422,34 @@ void InitPuzzleSystem(int ch)
         currentQuestions[j] = temp;
     }
 
-    currentQuestion = 0;
+    currentQuestion = 0; //after shuffling start from 1st ques.
     lives = 3;
     score = 0;
     puzzleState = 0;
     wrongFlash=0.0f;
 }
 
+//handles what the player does
 void UpdatePuzzleSystem(void){
     
-    if (puzzleState == 1)
+    if (puzzleState == 1) //trial-complete screen ,finished the required questions
     {
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
         {
-            puzzleState = 3;
+            puzzleState = 3; //Success-result state
         }
         return;
     }
 
-    if (puzzleState == 2)
+    if (puzzleState == 2)  //trial-failed screen, lost all lives
     {
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
         {
-            puzzleState = 4;
+            puzzleState = 4; //Failure-result state
         }
         return;
     }
-    if (puzzleState != 0)
+    if (puzzleState != 0) //a safety check
         return;
 
     if (currentQuestion >= questionsPerChapter)
@@ -456,19 +458,24 @@ void UpdatePuzzleSystem(void){
         return;
     }
 
-    QuizQuestion *q = &currentQuestions[currentQuestion];
+    QuizQuestion *q = &currentQuestions[currentQuestion]; //q is a pointer to the current question
+
     if (wrongFlash > 0.0f)
         wrongFlash -= GetFrameTime();
 
+    //answer-selection part
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
     {
-        Vector2 mouse = GetMousePosition();
-        for (int i = 0; i < 4; i++)
+        Vector2 mouse = GetMousePosition(); //vector2 contains x,y coordinate
+
+        for (int i = 0; i < 4; i++)  //Check all 4 answer choices
         {
+            //Creates the clickable answer area
             Rectangle answerArea = {210, (float)(355 + i * 75), 860, 58};
-            if (CheckCollisionPointRec(mouse, answerArea))
+
+            if (CheckCollisionPointRec(mouse, answerArea)) //Is the mouse point inside this rectangle
             {
-                if (i == q->correctAnswer)
+                if (i == q->correctAnswer) //i =players click
                 {
                     score++;
                     currentQuestion++;
@@ -477,7 +484,7 @@ void UpdatePuzzleSystem(void){
                 else
                 {
                     lives--;
-                    if (lives <= 0)
+                    if (lives <= 0)  //Check if all lives are gone
                     {
                         puzzleState = 2;
                         return;
@@ -490,18 +497,22 @@ void UpdatePuzzleSystem(void){
     }
 }
 
+//shows the puzzle
 void DrawPuzzleSystem(void)
 {
     ClearBackground((Color){10, 10, 25, 255});
 
-    DrawRectangle(0, 0, 1280, 70, (Color){20, 20, 40, 255});
-    DrawText(TextFormat("CHAPTER %d — TRIAL OF KNOWLEDGE", chapter), 380, 20, 32, GOLD);
+    DrawRectangle(0, 0, 1280, 70, (Color){20, 20, 40, 255}); //creates a 1280 × 70 header bar
+
+    DrawText(TextFormat("CHAPTER %d — TRIAL OF KNOWLEDGE", chapter), 380, 20, 32, GOLD); //32-font size
 
     if (puzzleState == 0 && currentQuestion < questionsPerChapter)
     {
         QuizQuestion *q = &currentQuestions[currentQuestion];
 
         DrawText("LIVES: ", 50, 90, 24, WHITE);
+
+        //Draw the three hearts
         for (int i = 0; i < 3; i++)
         {
             Color heartColor;
@@ -520,18 +531,24 @@ void DrawPuzzleSystem(void)
             DrawText("WRONG ANSWER - TRY THIS QUESTION AGAIN", 390, 150, 24, RED);
         }
 
-        DrawRectangle(80, 190, 1120, 140, (Color){25, 25, 45, 255});
-        DrawRectangleLinesEx((Rectangle){80, 190, 1120, 140}, 3, GOLD);
-        DrawWrapped(q->question, 120, 220, 1040, 26, WHITE);
+        DrawRectangle(80, 190, 1120, 140, (Color){25, 25, 45, 255}); //Draws question box
+
+        DrawRectangleLinesEx((Rectangle){80, 190, 1120, 140}, 3, GOLD); //draws border around that ques box
+        //3-thickness
+
+        DrawWrapped(q->question, 120, 220, 1040, 26, WHITE);//Draws the question text
+        //1040-maxWidth
 
         const char *labels[] = {"A", "B", "C", "D"};
+
         Vector2 mouse = GetMousePosition();
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 4; i++)   // Draws four options
         {
-            int y = 355 + (i * 75);
+            int y = 355 + (i * 75); //Calculates vertical position of options
+
             Rectangle answerArea = {210, (float)y, 860, 58};
             Color textColor;
-            if (CheckCollisionPointRec(mouse, answerArea))
+            if (CheckCollisionPointRec(mouse, answerArea)) //highlights
                 textColor = GOLD;
             else
                 textColor = WHITE;
@@ -550,7 +567,7 @@ void DrawPuzzleSystem(void)
             DrawText(TextFormat("Final Score: %d / %d", score, questionsPerChapter), 450, 300, 36, GOLD);
             DrawText(TextFormat("Lives Remaining: %d", lives), 480, 360, 28, RED);
 
-            if (score == questionsPerChapter)
+            if (score == questionsPerChapter)  //player got every question correct.
             {
                 DrawText("Perfect. You know the story well.", 380, 430, 28, GREEN);
             }
@@ -567,11 +584,12 @@ void DrawPuzzleSystem(void)
         DrawText("Click anywhere to continue", 425, 550, 28, WHITE);
     }
 
-    if (puzzleState == 2)
+    if (puzzleState == 2)   //player has lost all lives
     {
         DrawRectangle(0, 0, 1280, 720, (Color){0, 0, 0, 200});
         DrawText("TRIAL FAILED", 430, 200, 60, RED);
         DrawText("You have lost all your lives.", 420, 300, 32, ORANGE);
+
         DrawText(TextFormat("Questions answered correctly: %d / %d", score, questionsPerChapter), 350, 370, 28, WHITE);
 
         DrawText("The trial is lost. You must fight to continue.", 330, 450, 28, ORANGE);
